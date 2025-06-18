@@ -17,7 +17,7 @@
 
     // --- Responde apenas ao pedido de inicialização --------------------
     if (data._type === "ucip.basic.g2wInitializationRequest") {
-      console.log("[DEV TOOLS] InitializationRequest recebido");
+      console.log("[PostLib JS] InitializationRequest recebido");
 
       const response = {
         _type: "ucip.basic.w2gInitializationResponse",
@@ -30,7 +30,7 @@
       /* Se o build Unity está num <iframe>, use: */
       // event.source.postMessage(response, "*");
 
-      console.log("[DEV TOOLS] Initialization enviado:", response);
+      console.log("[PostLib JS] Initialization enviado:", response);
     }
   });
 })();
@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Atualiza rótulo do botão
     document.getElementById("pauseBtn").textContent = isPaused ? "▶️ Resume" : "⏸️ Pause";
 
-    console.log("[DEV TOOLS] Pause toggled:", msg);
+    console.log("[PostLib JS] Pause toggled:", msg);
   };
 
   window.interruptAutoplay = () => {
@@ -103,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
       _type: "ucip.autoplay.w2gInterruptGameplayCommand",
     };
     window.postMessage(msg, "*");
-    console.log("[DEV TOOLS] Autoplay interrompido:", msg);
+    console.log("[PostLib JS] Autoplay interrompido:", msg);
   };
 
 
@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const raw = document.getElementById("postMessageJson").value;
       const msg = JSON.parse(raw);
       window.postMessage(msg, "*");
-      console.log("[DEV TOOLS] postMessage enviado:", msg);
+      console.log("[PostLib JS] postMessage enviado:", msg);
     } catch (e) {
       alert("Erro no JSON: " + e.message);
     }
@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // se cair aqui é porque não está no w2gMappings (e não é request g2w)
     if (!Object.prototype.hasOwnProperty.call(w2gMappings, data._type)) {
-      console.log("[DEV TOOLS] 📥 Mensagem recebida do Game (não mapeada):", data);
+      console.log("[PostLib JS] 📥 Mensagem recebida do Game (não mapeada):", data);
     }
   });
 });
