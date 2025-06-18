@@ -1,0 +1,116 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+  
+#unity-container {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  height: 100%;
+  transition: left 0.1s ease, width 0.1s ease;
+}
+
+#unity-canvas {
+  width: 100%;
+  height: 100%;
+  background-image: url("capa_desktop.webp");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+#overlay-content {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 141px;
+  height: max-content;
+}
+#unity-loading-bar {
+  position: relative;
+  width: 100%;
+  height: 18px;
+  background: none;
+  margin-bottom: 2rem;
+  align-self: center;
+}
+
+#unity-progress-bar-empty {
+  position: relative;     
+  width: 100%;
+  height: 100%;
+  background: url("progress-bar-empty-dark.webp")
+    no-repeat center;
+  background-size: auto;
+  
+}
+
+#unity-progress-bar-full {
+  position: absolute;     
+  top: 0;
+  width: 0%;                
+  height: 100%;
+  background: url("progress-bar-full-dark.webp")
+    no-repeat left center;
+  background-size: cover;
+  overflow: hidden; 
+  transition: width 0.1s ease;
+}
+
+#unity-logo {
+  width: 200px;
+  height: auto;
+  pointer-events: none;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 1));
+  text-align: center;
+}
+#production-name {
+  color: #fff;
+  font-size: 16px;
+  font-family: sans-serif;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  text-align: center;
+  margin-top: 16px;
+}
+
+/* ============================================
+   3) BREAKPOINT CELULAR (até 768px)
+   ============================================ */
+@media (max-width: 768px) {
+  #unity-canvas {
+    background-image: url("capa_mobile.webp");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  #overlay-content {
+    bottom: 1.5rem;
+    align-items: center;
+  }
+
+  #unity-loading-bar {
+    width: 100%;
+    height: 18px;
+    margin-bottom: 2rem;
+  }
+
+  #unity-logo {
+    width: 200px;
+  }
+
+  #production-name {
+    font-size: 15px;
+    margin-top: 12px;
+  }
+}
