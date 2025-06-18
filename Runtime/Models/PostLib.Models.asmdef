@@ -1,0 +1,16 @@
+{
+    "name": "PostLib.Models",
+    "rootNamespace": "",
+    "references": [
+        "GUID:72e1fb5131b3a7a4395af65c7a067633"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,48 @@
+using System.IO;
+using UnityEditor;
+using UnityEngine;
+
+namespace PostLib.Editor
+{
+    /// <summary>Cria/atualiza o arquivo PostMessage.jslib quando o projeto recompila.</summary>
+    [InitializeOnLoad]
+    internal static class PostLibPluginCreator
+    {
+        private const string PluginPath = "Assets/Plugins/WebGL/PostMessage.jslib";
+
+        private const string PluginSource = @"
+mergeInto(LibraryManager.library, {
+JS_Receive: function () {
+window.addEventListener('message', function (e) {
+  if (e.data && e.data._type)
+    SendMessage('PostBridge', 'OnReceive', JSON.stringify(e.data));
+});
+},
+JS_Send: function (ptr) {
+const json = UTF8ToString(ptr);
+window.parent.postMessage(JSON.parse(json), '*');
+}
+});
+";
+
+        static PostLibPluginCreator()
+        {
+            // Executa no primeiro domínio carregado
+            EnsurePluginFile();
+        }
+
+        private static void EnsurePluginFile()
+        {
+            var fullPath = Path.GetFullPath(PluginPath);
+
+            // Recria apenas se não existir ou se o conteúdo mudou
+            if (!File.Exists(fullPath) || File.ReadAllText(fullPath) != PluginSource)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                File.WriteAllText(fullPath, PluginSource);
+                Debug.Log("[PostLib] PostMessage.jslib atualizado em: " + PluginPath);
+                AssetDatabase.Refresh();
+            }
+        }
+    }
+}

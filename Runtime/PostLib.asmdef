@@ -1,0 +1,17 @@
+{
+    "name": "PostLib",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ca55f7fc38e63364c93600530d59f463",
+        "GUID:72e1fb5131b3a7a4395af65c7a067633"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
