@@ -1,72 +1,20 @@
 /* ===================================================================== */
-/*  BLOCO 1 — Listener mínimo (roda assim que o script é executado)      */
-/* ===================================================================== */
-(function () {
-  const GAME_FEATURES = [
-    "gamestatus",
-    ["openpage", { delegatePages: ["deposit", "game_history"] }],
-    ["sound",    { mute: false, level: 50 }]
-  ];
-
-  // Deixe acessível ao restante do arquivo, se precisar:
-  window.__GAME_FEATURES = GAME_FEATURES;
-
-  window.addEventListener("message", function unityInitListener(event) {
-    const data = event.data;
-    if (!data || typeof data !== "object" || !data._type) return;
-
-    // --- Responde apenas ao pedido de inicialização --------------------
-    if (data._type === "ucip.basic.g2wInitializationRequest") {
-      console.log("[PostLib JS] InitializationRequest recebido");
-
-      const response = {
-        _type: "ucip.basic.w2gInitializationResponse",
-        version: data.version || "1.0.0",
-        features: GAME_FEATURES.map(f => Array.isArray(f) ? f[0] : f)
-      };
-
-      event.source.postMessage(response, "*");
-
-      /* Se o build Unity está num <iframe>, use: */
-      // event.source.postMessage(response, "*");
-
-      console.log("[PostLib JS] Initialization enviado:", response);
-    }
-  });
-})();
-
-/* ===================================================================== */
-/*  BLOCO 2 — Tudo que depende do DOM (sidebar, resolução, etc.)         */
+/*  Dev‑Tools – carregado somente em Development                         */
 /* ===================================================================== */
 document.addEventListener("DOMContentLoaded", () => {
-  const sidebar   = document.getElementById("sidebar");
-  const toggleBtn = document.getElementById("sidebarToggle");
-  const canvas    = document.getElementById("unity-canvas");
-  const container = document.getElementById("unity-container");
+  /* ------------------- DOM ------------------------------------------------ */
+  const sidebar     = document.getElementById("sidebar");
+  const toggleBtn   = document.getElementById("sidebarToggle");
+  const canvas      = document.getElementById("unity-canvas");
+  const container   = document.getElementById("unity-container");
+  const pauseBtn    = document.getElementById("pauseBtn");
+  const autoBtn     = document.getElementById("autoBtn");
+  const msgTextarea = document.getElementById("postMessageJson");
 
-  /* -------- Mapeamento de mensagens que o PRÓPRIO jogo trata ---------- */
-  const w2gMappings = {
-    "ucip.basic.w2gInitializationResponse":       initializeResponseHandler,
-    "ucip.autoplay.w2gInterruptGameplayCommand":  interruptGameplayHandler,
-    "ucip.pause.w2gPauseCommand":                 gamePauseHandler,
-    "ucip.displaystatus.w2gVisibilityChangeNotification": visibilityChangeHandler,
-    "ucip.sound.w2gSoundUpdateNotification":      soundUpdateHandler,
-    "ucip.balancerefresh.w2gRefreshBalanceCommand": refreshBalanceHandler,
-    "ucip.closegame.w2gCloseGameRequest":         closeGameHandler
-  };
+  /* ------------------- Estado -------------------------------------------- */
+  let isPaused    = false;
 
-  let isPaused   = false;
-  let autoStopped = false;
-
-  function initializeResponseHandler(msg) {}
-  function interruptGameplayHandler(msg) {}
-  function gamePauseHandler(msg) {}
-  function visibilityChangeHandler(msg) {}
-  function soundUpdateHandler(msg) {}
-  function refreshBalanceHandler(msg) {}
-  function closeGameHandler(msg) {}
-
-  /* --------------------- Layout do canvas x sidebar ------------------- */
+  /* ------------------- Layout / Sidebar ---------------------------------- */
   function applyCanvasLayout() {
     const isOpen       = sidebar.classList.contains("open");
     const sidebarWidth = isOpen ? sidebar.offsetWidth : 0;
@@ -77,42 +25,35 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toggleBtn) {
     toggleBtn.addEventListener("click", () => {
       sidebar.classList.toggle("open");
-      setTimeout(applyCanvasLayout, 300); // espera animação CSS
+      setTimeout(applyCanvasLayout, 300);
     });
   }
   window.addEventListener("resize", applyCanvasLayout);
-  applyCanvasLayout();
-  /* -------------------------- Botões de controle ----------------------- */
+  applyCanvasLayout();               // primeira execução
+
+  /* ------------------- Botões de controle -------------------------------- */
   window.togglePause = () => {
     isPaused = !isPaused;
-
-    const msg = {
+    PostLib.send({
       _type: "ucip.pause.w2gPauseCommand",
       pause: isPaused
-    };
-    window.postMessage(msg, "*");
+    });
 
-    // Atualiza rótulo do botão
-    document.getElementById("pauseBtn").textContent = isPaused ? "▶️ Resume" : "⏸️ Pause";
-
-    console.log("[PostLib JS] Pause toggled:", msg);
+    pauseBtn.textContent = isPaused ? "▶️ Resume" : "⏸️ Pause";
+    console.log("[Dev‑Tools] Pause toggled:", isPaused);
   };
 
   window.interruptAutoplay = () => {
-    const msg = {
-      _type: "ucip.autoplay.w2gInterruptGameplayCommand",
-    };
-    window.postMessage(msg, "*");
-    console.log("[PostLib JS] Autoplay interrompido:", msg);
+    PostLib.send({ _type: "ucip.autoplay.w2gInterruptGameplayCommand" });
+    console.log("[Dev‑Tools] Autoplay interrompido");
   };
 
-
-  /* ---------------------------- Resolução ----------------------------- */
+  /* ------------------- Resolução canvas ---------------------------------- */
   window.changeResolution = (value) => {
     if (!canvas) return;
 
     if (value === "auto") {
-      canvas.style.width = "100%";
+      canvas.style.width  = "100%";
       canvas.style.height = "100%";
     } else {
       const [w, h] = value.split("x");
@@ -121,26 +62,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  /* ----------------------- Enviar postMessage manual ------------------ */
+  /* ------------------- Enviar JSON manual -------------------------------- */
   window.sendCustomMessage = () => {
     try {
-      const raw = document.getElementById("postMessageJson").value;
+      const raw = msgTextarea.value;
       const msg = JSON.parse(raw);
-      window.postMessage(msg, "*");
-      console.log("[PostLib JS] postMessage enviado:", msg);
+      PostLib.send(msg);
+      console.log("[Dev‑Tools] postMessage enviado:", msg);
     } catch (e) {
       alert("Erro no JSON: " + e.message);
     }
   };
 
-  /* --------- Qualquer mensagem NÃO tratada pelo próprio jogo ---------- */
-  window.addEventListener("message", (event) => {
-    const data = event.data;
-    if (!data || typeof data !== "object" || !data._type) return;
+  /* ------------------- Handlers vindos do jogo --------------------------- */
+  const w2gMappings = {
+    "ucip.basic.w2gInitializationResponse": (msg) => {
+      console.log("[Dev‑Tools] InitializationResponse", msg);
+    },
+    "ucip.autoplay.w2gInterruptGameplayCommand": (msg) => {
+      console.log("[Dev‑Tools] Autoplay interrupt recebido", msg);
+    },
+    "ucip.pause.w2gPauseCommand": (msg) => {
+      console.log("[Dev‑Tools] Pause command recebido", msg);
+    },
+    // ... adicione outros handlers se precisar ...
+  };
 
-    // se cair aqui é porque não está no w2gMappings (e não é request g2w)
-    if (!Object.prototype.hasOwnProperty.call(w2gMappings, data._type)) {
-      console.log("[PostLib JS] 📥 Mensagem recebida do Game (não mapeada):", data);
-    }
+  /* Inscreve‑se no dispatcher do core */
+  PostLib.onMessage.add((msg) => {
+    if (w2gMappings[msg._type])
+      w2gMappings[msg._type](msg);
+    else
+      console.log("[Dev‑Tools] 📥 Mensagem não mapeada:", msg);
   });
 });
