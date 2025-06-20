@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 namespace PostLib.Editor
@@ -7,31 +8,42 @@ namespace PostLib.Editor
     [InitializeOnLoad]
     internal static class PostLibTemplateInstaller
     {
-        private const string SourcePath  = "Packages/PostLib/WebGLTemplates";
-        private const string TargetPath  = "Assets/WebGLTemplates";
         private const string TemplateName = "PostLibTemplate";
+        private const string TargetRoot   = "Assets/WebGLTemplates";
 
-        static PostLibTemplateInstaller()
-        {
-            EnsureTemplateInAssets();
-        }
+        static PostLibTemplateInstaller() => EnsureTemplateInAssets();
 
+        /* ------------------------------------------------------------ */
         private static void EnsureTemplateInAssets()
         {
-            var src = Path.Combine(SourcePath, TemplateName);
-            var dst = Path.Combine(TargetPath, TemplateName);
+            string packagePath = GetPackageRoot();
+            if (string.IsNullOrEmpty(packagePath))
+            {
+                Debug.LogWarning("[PostLib] Não foi possível localizar o pacote PostLib.");
+                return;
+            }
 
-            if (Directory.Exists(dst)) return;
+            string src = Path.Combine(packagePath, "WebGLTemplates", TemplateName);
+            string dst = Path.Combine(TargetRoot,         TemplateName);
 
             if (!Directory.Exists(src))
             {
                 Debug.LogWarning($"[PostLib] Template não encontrado em {src}");
                 return;
             }
+            if (Directory.Exists(dst)) return;
 
             DirectoryCopy(src, dst, true);
             AssetDatabase.Refresh();
             Debug.Log($"[PostLib] WebGL template copiado para: {dst}");
+        }
+
+        /* ------------------------------------------------------------ */
+        private static string GetPackageRoot()
+        {
+            var asm = typeof(PostLibTemplateInstaller).Assembly;
+            var info = PackageInfo.FindForAssembly(asm);
+            return info != null ? info.assetPath : null;
         }
 
         private static void DirectoryCopy(string sourceDir, string destDir, bool copySubDirs)
@@ -40,13 +52,12 @@ namespace PostLib.Editor
             if (!dir.Exists) return;
 
             Directory.CreateDirectory(destDir);
-
-            foreach (var file in dir.GetFiles())
+            foreach (FileInfo file in dir.GetFiles())
                 file.CopyTo(Path.Combine(destDir, file.Name), true);
 
-            if (!copySubDirs) return;
-            foreach (var sub in dir.GetDirectories())
-                DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
+            if (copySubDirs)
+                foreach (DirectoryInfo sub in dir.GetDirectories())
+                    DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
         }
     }
 }
