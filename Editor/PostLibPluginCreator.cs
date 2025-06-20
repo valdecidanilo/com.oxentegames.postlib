@@ -27,7 +27,6 @@ window.parent.postMessage(JSON.parse(json), '*');
 
         static PostLibPluginCreator()
         {
-            // Executa no primeiro domínio carregado
             EnsurePluginFile();
         }
 
@@ -35,7 +34,6 @@ window.parent.postMessage(JSON.parse(json), '*');
         {
             var fullPath = Path.GetFullPath(PluginPath);
 
-            // Recria apenas se não existir ou se o conteúdo mudou
             if (!File.Exists(fullPath) || File.ReadAllText(fullPath) != PluginSource)
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);

@@ -7,11 +7,14 @@
   <title>{{{ PRODUCT_NAME }}}</title>
 
   <link rel="stylesheet" href="TemplateData/style.css" />
+  <!-- DEV_TOOLS_START -->
   <link rel="stylesheet" href="Source/dev-tools.css" />
+  <!-- DEV_TOOLS_END -->
   <link rel="shortcut icon" href="Source/favicon.ico" />
 
 </head>
 <body>
+<!-- DEV_TOOLS_START -->
   <button id="sidebarToggle">☰ Painel PostMessage</button>
 
   <div id="sidebar">
@@ -41,7 +44,7 @@
       </select>
     </div>
   </div>
-
+<!-- DEV_TOOLS_END -->
   <div id="unity-container">
     <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1"></canvas>
     <div id="overlay-content">
@@ -54,7 +57,9 @@
       <div id="production-name">A GameName Production</div>
     </div>
   </div>
+<!-- DEV_TOOLS_START -->
   <script src="Source/dev-tools.js"></script>
+<!-- DEV_TOOLS_END -->
   <script>
     const canvas = document.getElementById("unity-canvas");
     const loadingBar = document.getElementById("overlay-content");
