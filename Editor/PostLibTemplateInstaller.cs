@@ -52,8 +52,15 @@ namespace PostLib.Editor
             if (!dir.Exists) return;
 
             Directory.CreateDirectory(destDir);
+
             foreach (FileInfo file in dir.GetFiles())
-                file.CopyTo(Path.Combine(destDir, file.Name), true);
+            {
+                if (file.Extension.Equals(".meta", System.StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var destFile = Path.Combine(destDir, file.Name);
+                file.CopyTo(destFile, true);
+            }
 
             if (copySubDirs)
                 foreach (DirectoryInfo sub in dir.GetDirectories())
