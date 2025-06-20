@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using UnityEditor;
-using UnityEditor.PackageManager;
+using UPMPackageInfo = UnityEditor.PackageManager.PackageInfo;
 using UnityEngine;
 
 namespace PostLib.Editor
@@ -42,7 +42,7 @@ namespace PostLib.Editor
         private static string GetPackageRoot()
         {
             var asm = typeof(PostLibTemplateInstaller).Assembly;
-            var info = PackageInfo.FindForAssembly(asm);
+            var info = UPMPackageInfo.FindForAssembly(asm);
             return info != null ? info.assetPath : null;
         }
 
