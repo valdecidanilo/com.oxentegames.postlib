@@ -15,9 +15,9 @@ namespace PostLib.Editor
         private const string DevEnd   = "<!-- DEV_TOOLS_END -->";
 
         private static readonly string TemplatePath =
-            Path.Combine(Application.dataPath, "WebGLTemplates/PostMessage/index.html");
+            Path.Combine(Application.dataPath, "WebGLTemplates/PostLibTemplate/index.html");
         private static readonly string SourceDir =
-            Path.Combine(Application.dataPath, "WebGLTemplates/PostMessage/Source");
+            Path.Combine(Application.dataPath, "WebGLTemplates/PostLibTemplate/Source");
 
         private string _backupHtmlPath;
         private string _externalTempDir;
@@ -49,7 +49,7 @@ namespace PostLib.Editor
             if (Directory.Exists(SourceDir))
             {
                 string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-                _externalTempDir = Path.Combine(projectRoot, "Temp/PostMessageSourceBackup");
+                _externalTempDir = Path.Combine(projectRoot, "Temp/PostLibTemplateSourceBackup");
 
                 if (Directory.Exists(_externalTempDir))
                     Directory.Delete(_externalTempDir, true);
