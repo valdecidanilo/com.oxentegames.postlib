@@ -7,7 +7,7 @@ namespace PostLib.Editor
     [InitializeOnLoad]
     internal static class PostLibTemplateInstaller
     {
-        private const string SourcePath  = "Packages/com.oxentegames.postlib/WebGLTemplates";
+        private const string SourcePath  = "Packages/PostLib/WebGLTemplates";
         private const string TargetPath  = "Assets/WebGLTemplates";
         private const string TemplateName = "PostLibTemplate";
 
