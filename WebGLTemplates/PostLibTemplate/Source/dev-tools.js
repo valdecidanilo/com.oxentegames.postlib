@@ -1,98 +1,90 @@
-/* ===================================================================== */
-/*  Dev‑Tools – carregado somente em Development                         */
-/* ===================================================================== */
-document.addEventListener("DOMContentLoaded", () => {
-  /* ------------------- DOM ------------------------------------------------ */
-  const sidebar     = document.getElementById("sidebar");
-  const toggleBtn   = document.getElementById("sidebarToggle");
-  const canvas      = document.getElementById("unity-canvas");
-  const container   = document.getElementById("unity-container");
-  const pauseBtn    = document.getElementById("pauseBtn");
-  const autoBtn     = document.getElementById("autoBtn");
-  const msgTextarea = document.getElementById("postMessageJson");
+(function () {
+  const GAME_FEATURES = [
+    "gamestatus",
+    ["openpage", { delegatePages: ["deposit", "game_history"] }],
+    ["sound", { mute: false, level: 50 }]
+  ];
 
-  /* ------------------- Estado -------------------------------------------- */
-  let isPaused    = false;
+  // Listener mínimo que SEMPRE escuta mensagens
+  window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (!data || typeof data !== "object" || !data._type) return;
 
-  /* ------------------- Layout / Sidebar ---------------------------------- */
-  function applyCanvasLayout() {
-    const isOpen       = sidebar.classList.contains("open");
-    const sidebarWidth = isOpen ? sidebar.offsetWidth : 0;
-    container.style.left  = `${sidebarWidth}px`;
-    container.style.width = `${window.innerWidth - sidebarWidth}px`;
-  }
-
-  if (toggleBtn) {
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
-      setTimeout(applyCanvasLayout, 300);
-    });
-  }
-  window.addEventListener("resize", applyCanvasLayout);
-  applyCanvasLayout();               // primeira execução
-
-  /* ------------------- Botões de controle -------------------------------- */
-  window.togglePause = () => {
-    isPaused = !isPaused;
-    PostLib.send({
-      _type: "ucip.pause.w2gPauseCommand",
-      pause: isPaused
-    });
-
-    pauseBtn.textContent = isPaused ? "▶️ Resume" : "⏸️ Pause";
-    console.log("[Dev‑Tools] Pause toggled:", isPaused);
-  };
-
-  window.interruptAutoplay = () => {
-    PostLib.send({ _type: "ucip.autoplay.w2gInterruptGameplayCommand" });
-    console.log("[Dev‑Tools] Autoplay interrompido");
-  };
-
-  /* ------------------- Resolução canvas ---------------------------------- */
-  window.changeResolution = (value) => {
-    if (!canvas) return;
-
-    if (value === "auto") {
-      canvas.style.width  = "100%";
-      canvas.style.height = "100%";
-    } else {
-      const [w, h] = value.split("x");
-      canvas.style.width  = `${w}px`;
-      canvas.style.height = `${h}px`;
+    if (data._type === "ucip.basic.g2wInitializationRequest") {
+      const response = {
+        _type: "ucip.basic.w2gInitializationResponse",
+        version: data.version || "1.0.0",
+        features: GAME_FEATURES.map(f => Array.isArray(f) ? f[0] : f)
+      };
+      event.source.postMessage(response, "*");
+      console.log("[DevTools] Initialization enviado:", response);
     }
-  };
-
-  /* ------------------- Enviar JSON manual -------------------------------- */
-  window.sendCustomMessage = () => {
-    try {
-      const raw = msgTextarea.value;
-      const msg = JSON.parse(raw);
-      PostLib.send(msg);
-      console.log("[Dev‑Tools] postMessage enviado:", msg);
-    } catch (e) {
-      alert("Erro no JSON: " + e.message);
-    }
-  };
-
-  /* ------------------- Handlers vindos do jogo --------------------------- */
-  const w2gMappings = {
-    "ucip.basic.w2gInitializationResponse": (msg) => {
-      console.log("[Dev‑Tools] InitializationResponse", msg);
-    },
-    "ucip.autoplay.w2gInterruptGameplayCommand": (msg) => {
-      console.log("[Dev‑Tools] Autoplay interrupt recebido", msg);
-    },
-    "ucip.pause.w2gPauseCommand": (msg) => {
-      console.log("[Dev‑Tools] Pause command recebido", msg);
-    },
-    // ... adicione outros handlers se precisar ...
-  };
-
-  /* Inscreve‑se no dispatcher do core */
-  PostLib.onMessage.add((msg) => {
-    if (w2gMappings[msg._type])
-      w2gMappings[msg._type](msg);
-    else
-      console.log("[Dev‑Tools] 📥 Mensagem não mapeada:", msg);
   });
-});
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.getElementById("sidebar");
+    const toggleBtn = document.getElementById("sidebarToggle");
+    const canvas = document.getElementById("unity-canvas");
+    const container = document.getElementById("unity-container");
+
+    const applyCanvasLayout = () => {
+      const isOpen = sidebar?.classList.contains("open");
+      const sidebarWidth = isOpen ? sidebar.offsetWidth : 0;
+      container.style.left = `${sidebarWidth}px`;
+      container.style.width = `${window.innerWidth - sidebarWidth}px`;
+    };
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        setTimeout(applyCanvasLayout, 300);
+      });
+    }
+
+    window.addEventListener("resize", applyCanvasLayout);
+    applyCanvasLayout();
+
+    // Funções globais
+    window.togglePause = () => {
+      const pauseBtn = document.getElementById("pauseBtn");
+      const isPaused = pauseBtn.textContent.includes("Resume");
+
+      const msg = {
+        _type: "ucip.pause.w2gPauseCommand",
+        pause: !isPaused
+      };
+      window.postMessage(msg, "*");
+      pauseBtn.textContent = isPaused ? "⏸️ Pause" : "▶️ Resume";
+      console.log("[DevTools] Toggle pause:", msg);
+    };
+
+    window.interruptAutoplay = () => {
+      const msg = { _type: "ucip.autoplay.w2gInterruptGameplayCommand" };
+      window.postMessage(msg, "*");
+      console.log("[DevTools] Autoplay interrompido:", msg);
+    };
+
+    window.changeResolution = (value) => {
+      if (!canvas) return;
+      if (value === "auto") {
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+      } else {
+        const [w, h] = value.split("x");
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
+      }
+    };
+
+    window.sendCustomMessage = () => {
+      try {
+        const raw = document.getElementById("postMessageJson").value;
+        const msg = JSON.parse(raw);
+        window.postMessage(msg, "*");
+        console.log("[DevTools] postMessage enviado:", msg);
+      } catch (e) {
+        alert("Erro no JSON: " + e.message);
+      }
+    };
+  });
+})();
