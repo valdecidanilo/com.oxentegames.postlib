@@ -1,9 +1,32 @@
 (function () {
+  const GAME_FEATURES = [
+    "gamestatus",
+    ["openpage", { delegatePages: ["deposit", "game_history"] }],
+    ["sound", { mute: false, level: 50 }]
+  ];
+
+  // Listener mínimo que SEMPRE escuta mensagens
+  window.addEventListener("message", (event) => {
+    const data = event.data;
+    if (!data || typeof data !== "object" || !data._type) return;
+
+    if (data._type === "ucip.basic.g2wInitializationRequest") {
+      const response = {
+        _type: "ucip.basic.w2gInitializationResponse",
+        version: data.version || "1.0.0",
+        features: GAME_FEATURES.map(f => Array.isArray(f) ? f[0] : f)
+      };
+      event.source.postMessage(response, "*");
+      console.log("[DevTools] Initialization enviado:", response);
+    }
+  });
+
   document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.getElementById("sidebar");
     const toggleBtn = document.getElementById("sidebarToggle");
     const canvas = document.getElementById("unity-canvas");
     const container = document.getElementById("unity-container");
+
     const applyCanvasLayout = () => {
       const isOpen = sidebar?.classList.contains("open");
       const sidebarWidth = isOpen ? sidebar.offsetWidth : 0;
@@ -14,14 +37,7 @@
     if (toggleBtn) {
       toggleBtn.addEventListener("click", () => {
         sidebar.classList.toggle("open");
-        setTimeout(() => {
-          applyCanvasLayout();
-          if (sidebar.classList.contains("open")) {
-            //document.getElementById("postMessageJson")?.focus();
-            const firstInput = sidebar.querySelector("textarea, input, select, button");
-            if (firstInput) firstInput.focus();
-          }
-        }, 300);
+        setTimeout(applyCanvasLayout, 300);
       });
     }
 
@@ -39,35 +55,33 @@
       };
       window.postMessage(msg, "*");
       pauseBtn.textContent = isPaused ? "⏸️ Pause" : "▶️ Resume";
-      console.log("[PostLib JS] Toggle pause:", msg);
+      console.log("[DevTools] Toggle pause:", msg);
     };
 
     window.interruptAutoplay = () => {
       const msg = { _type: "ucip.autoplay.w2gInterruptGameplayCommand" };
       window.postMessage(msg, "*");
-      console.log("[PostLib JS] Autoplay interrompido:", msg);
+      console.log("[DevTools] Autoplay interrompido:", msg);
     };
 
     window.changeResolution = (value) => {
-      const canvas = document.getElementById("unity-canvas");
-      const match = value.match(/^(\d+)x(\d+)$/);
-      if (match) {
-        const width = parseInt(match[1], 10);
-        const height = parseInt(match[2], 10);
-        canvas.style.width = width + "px";
-        canvas.style.height = height + "px";
-      } else if (value === "") {
+      if (!canvas) return;
+      if (value === "auto") {
         canvas.style.width = "100%";
-        canvas.style.height = "auto";
+        canvas.style.height = "100%";
+      } else {
+        const [w, h] = value.split("x");
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
       }
     };
 
     window.sendCustomMessage = () => {
       try {
-        const raw = document.getElementById("postMessageJson").value.trim();
+        const raw = document.getElementById("postMessageJson").value;
         const msg = JSON.parse(raw);
         window.postMessage(msg, "*");
-        console.log("[PostLib JS] postMessage enviado:", msg);
+        console.log("[DevTools] postMessage enviado:", msg);
       } catch (e) {
         alert("Erro no JSON: " + e.message);
       }

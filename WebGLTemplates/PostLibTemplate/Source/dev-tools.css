@@ -10,7 +10,6 @@
   padding: 24px 20px;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.6);
   z-index: 9999;
-  pointer-events: auto;
   transform: translateX(-100%);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -47,9 +46,9 @@
 }
 
 #postMessageJson{
-  pointer-events: auto;
   width: 90%;
-  z-index: 100000;
+  pointer-events: auto;  
+  user-select: text;
   resize: vertical;
 }
 
@@ -96,6 +95,7 @@
   background-color: #172643;
   box-shadow: 0 0 8px #3d78ff;
 }
+
 /* Botão enviar */
 .menu-section button {
   font-weight: 700;

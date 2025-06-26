@@ -9,8 +9,6 @@ html, body {
   position: absolute;
   display: flex;
   justify-content: center;
-  align-items: center;
-  background-color: #282828;
   top: 0;
   left: 0;
   height: 100%;
@@ -84,11 +82,7 @@ html, body {
   text-align: center;
   margin-top: 16px;
 }
-#resolutionInput {
-  width: 150px;
-  padding: 4px 8px;
-  font-family: monospace;
-}
+
 /* ============================================
    3) BREAKPOINT CELULAR (até 768px)
    ============================================ */
