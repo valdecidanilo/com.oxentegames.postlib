@@ -11,7 +11,7 @@ namespace PostLib.Editor
         private const string TemplateName = "PostLibTemplate";
         private const string SettingsFileName = "PostLibSettings.asset";
         private const string TargetRoot   = "Assets/WebGLTemplates";
-        private const string TargetDir        = "Assets/Resources";
+        private const string SettingsTargetDir        = "Assets/Resources";
 
         static PostLibTemplateInstaller() => EnsureTemplateInAssets();
 
