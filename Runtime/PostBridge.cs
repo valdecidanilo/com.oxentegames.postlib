@@ -13,6 +13,7 @@ namespace PostLib
 #if !UNITY_EDITOR && UNITY_WEBGL
             JS_Receive();
 #endif
+            Debug.Log("[PostLib] Escutando mensagens.");
             MessageRouter.SendInitialization();
         }
 
