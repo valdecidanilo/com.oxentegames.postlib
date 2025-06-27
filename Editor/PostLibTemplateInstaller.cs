@@ -9,13 +9,16 @@ namespace PostLib.Editor
     internal static class PostLibTemplateInstaller
     {
         private const string TemplateName = "PostLibTemplate";
+        private const string SettingsFileName = "PostLibSettings.asset";
         private const string TargetRoot   = "Assets/WebGLTemplates";
+        private const string TargetDir        = "Assets/Resources";
 
         static PostLibTemplateInstaller() => EnsureTemplateInAssets();
 
         /* ------------------------------------------------------------ */
         private static void EnsureTemplateInAssets()
         {
+            EnsureBootstrapSettings();
             string packagePath = GetPackageRoot();
             if (string.IsNullOrEmpty(packagePath))
             {
@@ -39,6 +42,34 @@ namespace PostLib.Editor
         }
 
         /* ------------------------------------------------------------ */
+        private static void EnsureBootstrapSettings()
+        {
+            string packageRoot = GetPackageRoot();
+            if (string.IsNullOrEmpty(packageRoot))
+            {
+                Debug.LogWarning("[PostLib] Não foi possível localizar o pacote PostLib.");
+                return;
+            }
+
+            string source = Path.Combine(packageRoot, "Editor", SettingsFileName);
+            string dest   = Path.Combine(TargetDir,    SettingsFileName);
+
+            if (!File.Exists(source))
+            {
+                Debug.LogWarning($"[PostLib] Arquivo não encontrado: {source}");
+                return;
+            }
+
+            if (File.Exists(dest)) return;
+
+            if (!Directory.Exists(TargetDir))
+                Directory.CreateDirectory(TargetDir);
+
+            File.Copy(source, dest, overwrite: true);
+            AssetDatabase.Refresh();
+            Debug.Log($"[PostLib] Arquivo bootstrap criado: {dest}");
+        }
+        
         private static string GetPackageRoot()
         {
             var asm = typeof(PostLibTemplateInstaller).Assembly;
