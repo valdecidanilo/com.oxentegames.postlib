@@ -9,13 +9,10 @@ namespace PostLib
         {
             if (Object.FindObjectOfType<PostBridge>() != null)
                 return;
-#if UNITY_EDITOR
             Debug.Log("[PostLib] Inicializado.");
-#endif
             var go = new GameObject("PostBridge");
             go.AddComponent<PostBridge>();
             Object.DontDestroyOnLoad(go);
-
         }
     }
 }
