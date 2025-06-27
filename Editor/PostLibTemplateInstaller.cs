@@ -13,12 +13,17 @@ namespace PostLib.Editor
         private const string TargetRoot   = "Assets/WebGLTemplates";
         private const string SettingsTargetDir        = "Assets/Resources";
 
-        static PostLibTemplateInstaller() => EnsureTemplateInAssets();
+        static PostLibTemplateInstaller() {
+            EnsureTemplateInAssets();
+            EditorApplication.delayCall += () =>
+            {
+                CreateSettingsAssetIfNeeded();
+            };
+        } 
 
         /* ------------------------------------------------------------ */
         private static void EnsureTemplateInAssets()
         {
-            CreateSettingsAssetIfNeeded();
             string packagePath = GetPackageRoot();
             if (string.IsNullOrEmpty(packagePath))
             {
