@@ -5,7 +5,7 @@ namespace PostLib
     internal static class PostBridgeBootstrap
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void CreateBridgeIfMissing()
+        public static void CreateBridgeIfMissing()
         {
             if (Object.FindObjectOfType<PostBridge>() != null)
                 return;

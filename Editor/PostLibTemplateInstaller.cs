@@ -48,22 +48,50 @@ namespace PostLib.Editor
 
         /* ------------------------------------------------------------ */
         private static void CreateSettingsAssetIfNeeded()
+{
+    string subfolder = Path.Combine(SettingsTargetDir, "PostLib");
+    string destAssetPath = Path.Combine(subfolder, SettingsFileName);
+    string bootstrapPath = Path.Combine(subfolder, "PostBootstrap.cs");
+
+    if (!Directory.Exists(subfolder))
+        Directory.CreateDirectory(subfolder);
+
+    // Cria ScriptableObject se não existir
+    if (!File.Exists(destAssetPath))
+    {
+        var settings = ScriptableObject.CreateInstance<PostLibSettings>();
+        AssetDatabase.CreateAsset(settings, destAssetPath);
+        Debug.Log($"[PostLib] Asset de configuração criado: {destAssetPath}");
+    }
+
+    // Cria o arquivo de bootstrap se não existir
+    if (!File.Exists(bootstrapPath))
+    {
+        File.WriteAllText(bootstrapPath, @"using UnityEngine;
+
+    namespace PostLib
+    {
+        internal static class PostBridgeBootstrap
         {
-            string destPath = Path.Combine(SettingsTargetDir, SettingsFileName);
-
-            if (File.Exists(destPath)) return;
-
-            if (!Directory.Exists(SettingsTargetDir))
-                Directory.CreateDirectory(SettingsTargetDir);
-
-            var settings = ScriptableObject.CreateInstance<PostLibSettings>();
-
-            AssetDatabase.CreateAsset(settings, destPath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            Debug.Log($"[PostLib] Asset de configuração criado: {destPath}");
+            [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+            public static void CreateBridgeIfMissing()
+            {
+                if (Object.FindObjectOfType<PostBridge>() != null)
+                    return;
+                Debug.Log(""[PostLib] Inicializado."");
+                var go = new GameObject(""PostBridge"");
+                go.AddComponent<PostBridge>();
+                Object.DontDestroyOnLoad(go);
+            }
         }
+    }
+    ");
+            Debug.Log($"[PostLib] Bootstrap script criado: {bootstrapPath}");
+        }
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+    }
 
         
         private static string GetPackageRoot()
