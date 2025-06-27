@@ -18,7 +18,7 @@ namespace PostLib.Editor
         /* ------------------------------------------------------------ */
         private static void EnsureTemplateInAssets()
         {
-            EnsureBootstrapSettings();
+            CreateSettingsAssetIfNeeded();
             string packagePath = GetPackageRoot();
             if (string.IsNullOrEmpty(packagePath))
             {
@@ -42,33 +42,24 @@ namespace PostLib.Editor
         }
 
         /* ------------------------------------------------------------ */
-        private static void EnsureBootstrapSettings()
+        private static void CreateSettingsAssetIfNeeded()
         {
-            string packageRoot = GetPackageRoot();
-            if (string.IsNullOrEmpty(packageRoot))
-            {
-                Debug.LogWarning("[PostLib] Não foi possível localizar o pacote PostLib.");
-                return;
-            }
+            string destPath = Path.Combine(SettingsTargetDir, SettingsFileName);
 
-            string source = Path.Combine(packageRoot, "Editor", SettingsFileName);
-            string dest   = Path.Combine(TargetDir,    SettingsFileName);
+            if (File.Exists(destPath)) return;
 
-            if (!File.Exists(source))
-            {
-                Debug.LogWarning($"[PostLib] Arquivo não encontrado: {source}");
-                return;
-            }
+            if (!Directory.Exists(SettingsTargetDir))
+                Directory.CreateDirectory(SettingsTargetDir);
 
-            if (File.Exists(dest)) return;
+            var settings = ScriptableObject.CreateInstance<PostLibSettings>();
 
-            if (!Directory.Exists(TargetDir))
-                Directory.CreateDirectory(TargetDir);
-
-            File.Copy(source, dest, overwrite: true);
+            AssetDatabase.CreateAsset(settings, destPath);
+            AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log($"[PostLib] Arquivo bootstrap criado: {dest}");
+
+            Debug.Log($"[PostLib] Asset de configuração criado: {destPath}");
         }
+
         
         private static string GetPackageRoot()
         {
