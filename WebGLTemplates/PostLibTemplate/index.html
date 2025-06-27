@@ -20,10 +20,12 @@
   <div id="sidebar">
     <div class="menu-section">
       <h3>📤 Enviar Mensagem</h3>
-      <textarea id="postMessageJson" rows="8">{
-  "_type": "ucip.pause.w2gPauseCommand",
-  "pause": true
-}</textarea>
+      <textarea id="postMessageJson" rows="8">
+        {
+          "_type": "ucip.pause.w2gPauseCommand",
+          "pause": true
+        }
+      </textarea>
       <button onclick="sendCustomMessage()">Enviar postMessage</button>
     </div>
     <div class="menu-section">
@@ -55,11 +57,6 @@
       <div id="production-name">A GameName Production</div>
     </div>
   </div>
-  <script>
-    window.logoImg = document.getElementById("unity-logo");
-    window.productionText = document.getElementById("production-name");
-  </script>
-  <script src="TemplateData/url-search-params.js"></script>
   <script src="TemplateData/postlib.js"></script>
 <!-- DEV_TOOLS_START -->
   <script src="Source/dev-tools.js"></script>
@@ -68,6 +65,8 @@
     const canvas = document.getElementById("unity-canvas");
     const loadingBar = document.getElementById("overlay-content");
     const progressBarFull = document.getElementById("unity-progress-bar-full");
+    const logoImg = document.getElementById("unity-logo");
+    const productionText = document.getElementById("production-name");
 
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
