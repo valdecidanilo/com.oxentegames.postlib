@@ -10,7 +10,7 @@
 - 🔄 Comunicação bidirecional (JS ↔ Unity)
 - ⚡ Auto-inicialização do listener JS em builds WebGL
 - 🧠 Roteamento de mensagens baseado em `_type`
-- 📦 Geração automática de `PostMessage.jslib`
+- 📦 Geração automática de `PostLib.jslib`
 - 🎮 Inicialização automática do `PostBridge` em runtime
 - ✅ Compatível com Unity WebGL (sem interferir no Editor)
 
@@ -27,7 +27,7 @@ PostLib/
 │   └── PostBridgeBootstrap.cs     ← Garante presença do PostBridge
 Plugins/
 └── WebGL/
-    └── PostMessage.jslib          ← Listener postMessage JS
+    └── PostLib.jslib          ← Listener postMessage JS
 ```
 
 ---
@@ -35,7 +35,7 @@ Plugins/
 ## 🚀 Instalação
 
 1. Copie a pasta `PostLib` e o conteúdo de `Plugins/WebGL` para o seu projeto Unity.
-2. O arquivo `PostMessage.jslib` será criado automaticamente após a primeira recompilação do Editor.
+2. O arquivo `PostLib.jslib` será criado automaticamente após a primeira recompilação do Editor.
 3. Ao iniciar sua aplicação WebGL, o `PostBridge` será injetado automaticamente na cena.
 
 ---
@@ -44,7 +44,7 @@ Plugins/
 
 ### JS → Unity
 
-O JavaScript envia mensagens para o Unity via `postMessage`. O listener JS está embutido no arquivo `PostMessage.jslib`, que escuta eventos globais:
+O JavaScript envia mensagens para o Unity via `postMessage`. O listener JS está embutido no arquivo `PostLib.jslib`, que escuta eventos globais:
 
 ```javascript
 window.postMessage({ _type: "ucip.pause.w2gPauseCommand", pause: true }, "*");
