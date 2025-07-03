@@ -9,20 +9,20 @@ namespace PostLib
 {
     public static class MessageRouter
     {
-        public static readonly HashSet<string> SupportedFeatures = new()
-        {
-            "basic",
-            "pause",
-            "autoplay"
-        };
+        public static MessageHandler messageHandler;
         
         // Unity → JS 
         public static void SendInitialization()
         {
+            InitializeHandler initializeHandler = new();
+            initializeHandler.AddHandler(messageHandler);
+            messageHandler = initializeHandler;
+            
+            HashSet<string> SupportedFeatures = new();
+            messageHandler.AddFeatures(SupportedFeatures);
             var msg = new InitializationMessage
             {
-                type     = PostMappings.InitializationRequest,
-                rawType  = PostMappings.InitializationRequest.GetEnumMemberValue(),
+                rawType  = "ucip.basic.g2wInitializationRequest",
                 Version  = "1.0.0",
                 Features = SupportedFeatures.ToArray()
             };
@@ -32,30 +32,27 @@ namespace PostLib
         public static void Route(string json)
         {
             var any = JsonConvert.DeserializeObject<BaseMessage>(json);
-            switch (any.type)
+            bool mapped = false;
+            messageHandler.HandleMessage(any.rawType, json, ref mapped);
+            if (!mapped) Debug.LogWarning($"[PostLib] Tipo não mapeado: {any.rawType}");
+        }
+    }
+
+    public class InitializeHandler : MessageHandler
+    {
+        public override void HandleMessage(string type, string message, ref bool catchMessage)
+        {
+            switch (type)
             {
-                case PostMappings.InitializationRequest:
-                    var init = JsonConvert.DeserializeObject<InitializationMessage>(json);
-                    CommandHandlers.HandleInitialization(init);
-                    break;
-                case PostMappings.InitializationResponse:
-                    var response = JsonConvert.DeserializeObject<InitializationMessage>(json);
-                    EventsHandlers.HandleReceived(response);
-                    break;
-                case PostMappings.AutoPlayInterruptCommand:
-                    EventsHandlers.HandleInterruptAutoplay();
-                    break;
-                case PostMappings.GamePauseHandler:
-                    var pause = JsonConvert.DeserializeObject<PauseMessage>(json);
-                    CommandHandlers.HandlePause(pause);
-                    break;
-                case PostMappings.CloseGameHandler:
-                    CommandHandlers.HandleClose();
-                    break;
-                default:
-                    Debug.LogWarning($"[PostLib] Tipo não mapeado: {any.type.GetEnumMemberValue()}");
+                case "ucip.basic.w2gInitializationResponse":
+                    var init = JsonConvert.DeserializeObject<InitializationMessage>(message);
+                    Debug.Log($"[PostLib] Initialization features: {string.Join(", ", init.Features)}");
+                    catchMessage = true;
+                    Initialize(init);
                     break;
             }
+            
+            base.HandleMessage(type, message, ref catchMessage);
         }
     }
 }

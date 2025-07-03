@@ -7,12 +7,6 @@ namespace PostLib.Models
      {
          [JsonProperty("_type")]
          public string rawType { get; set; }
-         private PostMappings _postMappings;
-         public PostMappings type
-         {
-             get => EnumUtils.ParseEnumByValue<PostMappings>(rawType);
-             set => _postMappings = value;
-         }
      }
 
 }

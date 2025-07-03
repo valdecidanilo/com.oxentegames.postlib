@@ -10,16 +10,14 @@ namespace PostLib.Editor
     {
         private const string TemplateName = "PostLibTemplate";
         private const string SettingsFileName = "PostLibSettings.asset";
-        private const string TargetRoot   = "Assets/WebGLTemplates";
-        private const string SettingsTargetDir        = "Assets/Resources";
+        private const string TargetRoot = "Assets/WebGLTemplates";
+        private const string SettingsTargetDir = "Assets/Resources";
 
-        static PostLibTemplateInstaller() {
+        static PostLibTemplateInstaller()
+        {
             EnsureTemplateInAssets();
-            EditorApplication.delayCall += () =>
-            {
-                CreateSettingsAssetIfNeeded();
-            };
-        } 
+            EditorApplication.delayCall += () => { CreateSettingsAssetIfNeeded(); };
+        }
 
         /* ------------------------------------------------------------ */
         private static void EnsureTemplateInAssets()
@@ -32,13 +30,14 @@ namespace PostLib.Editor
             }
 
             string src = Path.Combine(packagePath, "WebGLTemplates", TemplateName);
-            string dst = Path.Combine(TargetRoot,         TemplateName);
+            string dst = Path.Combine(TargetRoot, TemplateName);
 
             if (!Directory.Exists(src))
             {
                 Debug.LogWarning($"[PostLib] Template não encontrado em {src}");
                 return;
             }
+
             if (Directory.Exists(dst)) return;
 
             DirectoryCopy(src, dst, true);
@@ -48,26 +47,26 @@ namespace PostLib.Editor
 
         /* ------------------------------------------------------------ */
         private static void CreateSettingsAssetIfNeeded()
-{
-    string subfolder = Path.Combine(SettingsTargetDir, "PostLib");
-    string destAssetPath = Path.Combine(subfolder, SettingsFileName);
-    string bootstrapPath = Path.Combine(subfolder, "PostBootstrap.cs");
+        {
+            string subfolder = Path.Combine(SettingsTargetDir, "PostLib");
+            string destAssetPath = Path.Combine(subfolder, SettingsFileName);
+            string bootstrapPath = Path.Combine(subfolder, "PostBootstrap.cs");
 
-    if (!Directory.Exists(subfolder))
-        Directory.CreateDirectory(subfolder);
+            if (!Directory.Exists(subfolder))
+                Directory.CreateDirectory(subfolder);
 
-    // Cria ScriptableObject se não existir
-    if (!File.Exists(destAssetPath))
-    {
-        var settings = ScriptableObject.CreateInstance<PostLibSettings>();
-        AssetDatabase.CreateAsset(settings, destAssetPath);
-        Debug.Log($"[PostLib] Asset de configuração criado: {destAssetPath}");
-    }
+            // Cria ScriptableObject se não existir
+            if (!File.Exists(destAssetPath))
+            {
+                var settings = ScriptableObject.CreateInstance<PostLibSettings>();
+                AssetDatabase.CreateAsset(settings, destAssetPath);
+                Debug.Log($"[PostLib] Asset de configuração criado: {destAssetPath}");
+            }
 
-    // Cria o arquivo de bootstrap se não existir
-    if (!File.Exists(bootstrapPath))
-    {
-        File.WriteAllText(bootstrapPath, @"using UnityEngine;
+            // Cria o arquivo de bootstrap se não existir
+            if (!File.Exists(bootstrapPath))
+            {
+                File.WriteAllText(bootstrapPath, @"using UnityEngine;
 
     namespace PostLib
     {
@@ -86,19 +85,19 @@ namespace PostLib.Editor
         }
     }
     ");
-            Debug.Log($"[PostLib] Bootstrap script criado: {bootstrapPath}");
+                Debug.Log($"[PostLib] Bootstrap script criado: {bootstrapPath}");
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
-        AssetDatabase.SaveAssets();
-        AssetDatabase.Refresh();
-    }
 
-        
         private static string GetPackageRoot()
         {
             var asm = typeof(PostLibTemplateInstaller).Assembly;
             var info = UPMPackageInfo.FindForAssembly(asm);
-            return info != null ? info.assetPath : null;
+            return info?.assetPath;
         }
 
         private static void DirectoryCopy(string sourceDir, string destDir, bool copySubDirs)
