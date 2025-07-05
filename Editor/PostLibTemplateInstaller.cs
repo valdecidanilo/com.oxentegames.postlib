@@ -48,43 +48,47 @@ namespace PostLib.Editor
         /* ------------------------------------------------------------ */
         private static void CreateSettingsAssetIfNeeded()
         {
-            string subfolder = Path.Combine(SettingsTargetDir, "PostLib");
-            string destAssetPath = Path.Combine(subfolder, SettingsFileName);
-            string bootstrapPath = Path.Combine(subfolder, "PostBootstrap.cs");
+            string settingsAssetPath = "Assets/Resources/PostLibSettings.asset";
+            string bootstrapDir = "Assets/PostLib";
+            string bootstrapPath = Path.Combine(bootstrapDir, "PostBridgeBootstrap.cs");
 
-            if (!Directory.Exists(subfolder))
-                Directory.CreateDirectory(subfolder);
+            // Garante que a pasta Resources existe
+            if (!Directory.Exists("Assets/Resources"))
+                Directory.CreateDirectory("Assets/Resources");
 
-            // Cria ScriptableObject se não existir
-            if (!File.Exists(destAssetPath))
+            // Cria o ScriptableObject se não existir
+            if (!File.Exists(settingsAssetPath))
             {
                 var settings = ScriptableObject.CreateInstance<PostLibSettings>();
-                AssetDatabase.CreateAsset(settings, destAssetPath);
-                Debug.Log($"[PostLib] Asset de configuração criado: {destAssetPath}");
+                AssetDatabase.CreateAsset(settings, settingsAssetPath);
+                Debug.Log($"[PostLib] Asset de configuração criado: {settingsAssetPath}");
             }
 
-            // Cria o arquivo de bootstrap se não existir
+            // Cria pasta de scripts se necessário
+            if (!Directory.Exists(bootstrapDir))
+                Directory.CreateDirectory(bootstrapDir);
+
+            // Cria o arquivo bootstrap se não existir
             if (!File.Exists(bootstrapPath))
             {
                 File.WriteAllText(bootstrapPath, @"using UnityEngine;
 
-    namespace PostLib
-    {
-        internal static class PostBridgeBootstrap
+        namespace PostLib
         {
-            [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-            public static void CreateBridgeIfMissing()
+            internal static class PostBridgeBootstrap
             {
-                if (Object.FindObjectOfType<PostBridge>() != null)
-                    return;
-                Debug.Log(""[PostLib] Inicializado."");
-                var go = new GameObject(""PostBridge"");
-                go.AddComponent<PostBridge>();
-                Object.DontDestroyOnLoad(go);
+                [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+                public static void CreateBridgeIfMissing()
+                {
+                    if (Object.FindObjectOfType<PostBridge>() != null)
+                        return;
+                    Debug.Log(""[PostLib] Inicializado."");
+                    var go = new GameObject(""PostBridge"");
+                    go.AddComponent<PostBridge>();
+                    Object.DontDestroyOnLoad(go);
+                }
             }
-        }
-    }
-    ");
+        }");
                 Debug.Log($"[PostLib] Bootstrap script criado: {bootstrapPath}");
             }
 
