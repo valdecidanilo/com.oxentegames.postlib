@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "PostLib.Models",
-        "PostLib.Utils"
+        "PostLib.Utils",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor",

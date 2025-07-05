@@ -1,7 +1,10 @@
 {
     "name": "PostLib.Editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "Unity.TextMeshPro",
+        "PostLib"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [
         "WebGL"
