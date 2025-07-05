@@ -11,6 +11,8 @@ namespace PostLib.Editor
     {
         public int callbackOrder => 0;
 
+        private const string PostLibStart = "<!-- POSTLIB_START -->";
+        private const string PostLibEnd = "<!-- POSTLIB_END -->";
         private const string DevStart = "<!-- DEV_TOOLS_START -->";
         private const string DevEnd   = "<!-- DEV_TOOLS_END -->";
 
@@ -25,7 +27,8 @@ namespace PostLib.Editor
         public void OnPreprocessBuild(BuildReport report)
         {
             if (report.summary.platform != BuildTarget.WebGL) return;
-            bool isDev = (report.summary.options & BuildOptions.Development) != 0;
+            
+            var isDev = (report.summary.options & BuildOptions.Development) != 0;
             if (isDev) return;
 
             if (!File.Exists(TemplatePath))
@@ -37,14 +40,25 @@ namespace PostLib.Editor
             _backupHtmlPath = TemplatePath + ".bak";
             File.Copy(TemplatePath, _backupHtmlPath, true);
 
-            string html = File.ReadAllText(TemplatePath);
-            html = Regex.Replace(
-                html,
-                $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
-                string.Empty,
-                RegexOptions.IgnoreCase);
-            File.WriteAllText(TemplatePath, html);
-            Debug.Log("[PostLib] Painel Dev‑Tools removido para build release.");
+            var html = File.ReadAllText(TemplatePath);
+            if (!isDev)
+            {
+                html = Regex.Replace(
+                    html,
+                    $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
+                    string.Empty,
+                    RegexOptions.IgnoreCase);
+                Debug.Log("[PostLib] Painel Dev‑Tools removido para build release.");
+            }
+            if (!PostLibSettings.Instance.enablePostLib)
+            {
+                html = Regex.Replace(
+                    html,
+                    $"{Regex.Escape(PostLibStart)}[\\s\\S]*?{Regex.Escape(PostLibEnd)}",
+                    string.Empty,
+                    RegexOptions.IgnoreCase);
+                Debug.Log("[PostLib] PostLib desativado nesta build.");
+            }
 
             if (Directory.Exists(SourceDir))
             {
