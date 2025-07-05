@@ -5,8 +5,7 @@ namespace PostLib.Editor
     [CreateAssetMenu(fileName = "PostLibSettings", menuName = "PostLib/Settings")]
     public class PostLibSettings : ScriptableObject
     {
-        [Tooltip("Ativa ou desativa o PostLib nas builds")]
-        public bool enablePostLib = true; // <-- Remova o "static" aqui
+        public bool enablePostLib = true;
 
         private static PostLibSettings _instance;
         public static PostLibSettings Instance
@@ -14,7 +13,13 @@ namespace PostLib.Editor
             get
             {
                 if (_instance == null)
+                {
                     _instance = Resources.Load<PostLibSettings>("PostLibSettings");
+                    if (_instance == null)
+                    {
+                        Debug.LogError("[PostLib] PostLibSettings.asset não encontrado em Resources.");
+                    }
+                }
                 return _instance;
             }
         }
