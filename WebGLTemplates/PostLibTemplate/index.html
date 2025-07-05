@@ -60,7 +60,9 @@
     window.productionText = document.getElementById("production-name");
   </script>
   <script src="TemplateData/url-search-params.js"></script>
+<!-- POSTLIB -->
   <script src="TemplateData/postlib.js"></script>
+<!-- POSTLIB -->
 <!-- DEV_TOOLS_START -->
   <script src="Source/dev-tools.js"></script>
 <!-- DEV_TOOLS_END -->
@@ -108,7 +110,7 @@
         progressBarFull.style.width = 100 * progress + "%";
       }).then((unityInstance) => {
         loadingBar.style.display = "none";
-        unityInstance.SendMessage("StartSettings", "ReceivedRegulation", window.regulation);
+        unityInstance.SendMessage("LoaderSettings", "ReceivedRegulation", window.regulation);
       }).catch((message) => {
         alert(message);
       });
