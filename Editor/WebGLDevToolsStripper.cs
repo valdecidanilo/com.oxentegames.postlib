@@ -14,7 +14,7 @@ namespace PostLib.Editor
         private const string PostLibStart = "<!-- POSTLIB_START -->";
         private const string PostLibEnd = "<!-- POSTLIB_END -->";
         private const string DevStart = "<!-- DEV_TOOLS_START -->";
-        private const string DevEnd   = "<!-- DEV_TOOLS_END -->";
+        private const string DevEnd = "<!-- DEV_TOOLS_END -->";
 
         private static readonly string TemplatePath =
             Path.Combine(Application.dataPath, "WebGLTemplates/PostLibTemplate/index.html");
@@ -26,10 +26,17 @@ namespace PostLib.Editor
 
         public void OnPreprocessBuild(BuildReport report)
         {
-            if (report.summary.platform != BuildTarget.WebGL) return;
+            if (report.summary.platform != BuildTarget.WebGL)
+                return;
 
             bool isDevBuild = (report.summary.options & BuildOptions.Development) != 0;
             var settings = PostLibSettings.Instance;
+
+            if (settings == null)
+            {
+                Debug.LogWarning("[PostLib] Não foi possível carregar as configurações.");
+                return;
+            }
 
             if (!File.Exists(TemplatePath))
             {
@@ -37,61 +44,41 @@ namespace PostLib.Editor
                 return;
             }
 
+            // Backup do HTML original
             _backupHtmlPath = TemplatePath + ".bak";
             File.Copy(TemplatePath, _backupHtmlPath, true);
 
             string html = File.ReadAllText(TemplatePath);
 
-            // Regras aplicadas
             if (!settings.enablePostLib)
             {
-                // Remove tudo
-                html = Regex.Replace(html,
-                    $"{Regex.Escape(PostLibStart)}[\\s\\S]*?{Regex.Escape(PostLibEnd)}",
-                    string.Empty,
-                    RegexOptions.IgnoreCase);
+                // PostLib desativado → remover tudo
+                html = Regex.Replace(html, $"{Regex.Escape(PostLibStart)}[\\s\\S]*?{Regex.Escape(PostLibEnd)}", string.Empty, RegexOptions.IgnoreCase);
+                html = Regex.Replace(html, $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}", string.Empty, RegexOptions.IgnoreCase);
 
-                html = Regex.Replace(html,
-                    $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
-                    string.Empty,
-                    RegexOptions.IgnoreCase);
-
-                Debug.Log("[PostLib] PostLib e DevTools desativados.");
+                Debug.Log("[PostLib] PostLib e DevTools removidos.");
+                MoveSourceOut(); // sempre move quando desativado
             }
-            else if (!isDevBuild && settings.enablePostLib)
+            else if (!isDevBuild)
             {
-                // Só remove DevTools
-                html = Regex.Replace(html,
-                    $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
-                    string.Empty,
-                    RegexOptions.IgnoreCase);
+                // Release com PostLib ativo → remover só devtools
+                html = Regex.Replace(html, $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}", string.Empty, RegexOptions.IgnoreCase);
 
-                Debug.Log("[PostLib] DevTools removidos da build release.");
+                Debug.Log("[PostLib] DevTools removidos na build release.");
+                MoveSourceOut(); // remove Source para não incluir devtools.css/js
             }
             else
             {
-                Debug.Log("[PostLib] Nenhuma modificação no template (Dev build ativo e PostLib habilitado).");
+                Debug.Log("[PostLib] Build de desenvolvimento com PostLib ativo – mantendo tudo.");
+                // não move a pasta Source para que ela vá para o build
             }
 
             File.WriteAllText(TemplatePath, html);
-
-            // Move Source temporariamente
-            if (Directory.Exists(SourceDir))
-            {
-                string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-                _externalTempDir = Path.Combine(projectRoot, "Temp/PostLibTemplateSourceBackup");
-
-                if (Directory.Exists(_externalTempDir))
-                    Directory.Delete(_externalTempDir, true);
-
-                Directory.CreateDirectory(Path.GetDirectoryName(_externalTempDir));
-                Directory.Move(SourceDir, _externalTempDir);
-                Debug.Log("[PostLib] Pasta Source/ movida temporariamente para fora da build.");
-            }
         }
 
         public void OnPostprocessBuild(BuildReport report)
         {
+            // Restaurar HTML original
             if (!string.IsNullOrEmpty(_backupHtmlPath) && File.Exists(_backupHtmlPath))
             {
                 File.Copy(_backupHtmlPath, TemplatePath, true);
@@ -99,6 +86,7 @@ namespace PostLib.Editor
                 Debug.Log("[PostLib] Template restaurado após build.");
             }
 
+            // Restaurar pasta Source se ela foi movida
             if (!string.IsNullOrEmpty(_externalTempDir) && Directory.Exists(_externalTempDir))
             {
                 if (Directory.Exists(SourceDir))
@@ -107,6 +95,21 @@ namespace PostLib.Editor
                 Directory.Move(_externalTempDir, SourceDir);
                 Debug.Log("[PostLib] Pasta Source/ restaurada após build.");
             }
+        }
+
+        private void MoveSourceOut()
+        {
+            if (!Directory.Exists(SourceDir)) return;
+
+            string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            _externalTempDir = Path.Combine(projectRoot, "Temp/PostLibTemplateSourceBackup");
+
+            if (Directory.Exists(_externalTempDir))
+                Directory.Delete(_externalTempDir, true);
+
+            Directory.CreateDirectory(Path.GetDirectoryName(_externalTempDir));
+            Directory.Move(SourceDir, _externalTempDir);
+            Debug.Log("[PostLib] Pasta Source/ movida temporariamente para fora da build.");
         }
     }
 }
