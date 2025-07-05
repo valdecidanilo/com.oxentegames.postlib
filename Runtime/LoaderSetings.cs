@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace PostLib
 {
-    public class LoaderSetings : MonoBehaviour
+    public class LoaderSettings : MonoBehaviour
     {
         [SerializeField] private Image logoLoader;
         [SerializeField] private TMP_Text descriptionLoader;
