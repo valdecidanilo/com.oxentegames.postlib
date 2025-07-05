@@ -74,7 +74,25 @@ namespace PostLib.Editor
                     @"<canvas([^>]*?)\s+tabindex\s*=\s*""-1""([^>]*)>",
                     "<canvas$1$2>",
                     RegexOptions.IgnoreCase);
-
+                string blurScript = @"
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const canvas = document.getElementById('unity-canvas');
+    if (canvas) {
+        canvas.addEventListener('mousedown', function (e) {
+            if (document.activeElement === canvas) {
+                canvas.blur();
+            }
+        });
+    }
+});
+</script>
+";
+            html = Regex.Replace(
+                html,
+                @"</body\s*>",
+                blurScript + "\n</body>",
+                RegexOptions.IgnoreCase);
                 Debug.Log("[PostLib] Removido tabindex do canvas para build de desenvolvimento.");
             }
 
