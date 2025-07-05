@@ -10,7 +10,7 @@ namespace PostLib
         [SerializeField] private TMP_Text descriptionLoader;
         
         [SerializeField] private Sprite defaultLogo;
-        [SerializeField] private Sprite playtechLogo;
+        [SerializeField] private Sprite bussiness2Logo;
         
         //Invoked by JS in GameObject in Scene with name (LoaderSettings) 
         public void ReceivedRegulation(string regulation)
@@ -23,7 +23,7 @@ namespace PostLib
             logoLoader.color = Color.white;
             logoLoader.sprite = regulation.Equals("br") 
                 ? defaultLogo 
-                : playtechLogo;
+                : bussiness2Logo;
             descriptionLoader.enabled = regulation != "br";
         }
     }
