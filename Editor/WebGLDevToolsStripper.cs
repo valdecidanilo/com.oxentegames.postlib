@@ -27,9 +27,9 @@ namespace PostLib.Editor
         public void OnPreprocessBuild(BuildReport report)
         {
             if (report.summary.platform != BuildTarget.WebGL) return;
-            
-            var isDev = (report.summary.options & BuildOptions.Development) != 0;
-            if (isDev) return;
+
+            bool isDevBuild = (report.summary.options & BuildOptions.Development) != 0;
+            var settings = PostLibSettings.Instance;
 
             if (!File.Exists(TemplatePath))
             {
@@ -40,26 +40,42 @@ namespace PostLib.Editor
             _backupHtmlPath = TemplatePath + ".bak";
             File.Copy(TemplatePath, _backupHtmlPath, true);
 
-            var html = File.ReadAllText(TemplatePath);
-            if (!isDev)
+            string html = File.ReadAllText(TemplatePath);
+
+            // Regras aplicadas
+            if (!settings.enablePostLib)
             {
-                html = Regex.Replace(
-                    html,
-                    $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
-                    string.Empty,
-                    RegexOptions.IgnoreCase);
-                Debug.Log("[PostLib] Painel Dev‑Tools removido para build release.");
-            }
-            if (!PostLibSettings.Instance.enablePostLib)
-            {
-                html = Regex.Replace(
-                    html,
+                // Remove tudo
+                html = Regex.Replace(html,
                     $"{Regex.Escape(PostLibStart)}[\\s\\S]*?{Regex.Escape(PostLibEnd)}",
                     string.Empty,
                     RegexOptions.IgnoreCase);
-                Debug.Log("[PostLib] PostLib desativado nesta build.");
+
+                html = Regex.Replace(html,
+                    $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
+                    string.Empty,
+                    RegexOptions.IgnoreCase);
+
+                Debug.Log("[PostLib] PostLib e DevTools desativados.");
+            }
+            else if (!isDevBuild && settings.enablePostLib)
+            {
+                // Só remove DevTools
+                html = Regex.Replace(html,
+                    $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}",
+                    string.Empty,
+                    RegexOptions.IgnoreCase);
+
+                Debug.Log("[PostLib] DevTools removidos da build release.");
+            }
+            else
+            {
+                Debug.Log("[PostLib] Nenhuma modificação no template (Dev build ativo e PostLib habilitado).");
             }
 
+            File.WriteAllText(TemplatePath, html);
+
+            // Move Source temporariamente
             if (Directory.Exists(SourceDir))
             {
                 string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
