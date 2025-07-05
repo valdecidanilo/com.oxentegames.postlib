@@ -69,8 +69,13 @@ namespace PostLib.Editor
             }
             else
             {
-                Debug.Log("[PostLib] Build de desenvolvimento com PostLib ativo – mantendo tudo.");
-                // não move a pasta Source para que ela vá para o build
+                html = Regex.Replace(
+                    html,
+                    @"<canvas([^>]*?)\s+tabindex\s*=\s*""-1""([^>]*)>",
+                    "<canvas$1$2>",
+                    RegexOptions.IgnoreCase);
+
+                Debug.Log("[PostLib] Removido tabindex do canvas para build de desenvolvimento.");
             }
 
             File.WriteAllText(TemplatePath, html);
