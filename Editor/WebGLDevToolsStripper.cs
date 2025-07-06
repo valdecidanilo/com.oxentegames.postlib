@@ -61,6 +61,21 @@ namespace PostLib.Editor
             }
             else if (!isDevBuild)
             {
+                string styleCssPath = Path.Combine(Application.dataPath, "WebGLTemplates/PostLibTemplate/TemplateData/style.css");
+                if (File.Exists(styleCssPath))
+                {
+                    string css = File.ReadAllText(styleCssPath);
+
+                    // Remove as propriedades apenas do bloco #unity-container
+                    css = Regex.Replace(css, @"(#unity-container\s*{[^}]*?)\b(position|top|left)\s*:\s*[^;]+;\s*", "$1", RegexOptions.IgnoreCase);
+
+                    File.WriteAllText(styleCssPath, css);
+                    Debug.Log("[PostLib] Propriedades CSS 'position', 'top' e 'left' removidas do #unity-container na build release.");
+                }
+                else
+                {
+                    Debug.LogWarning($"[PostLib] style.css não encontrado em {styleCssPath}");
+                }
                 // Release com PostLib ativo → remover só devtools
                 html = Regex.Replace(html, $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}", string.Empty, RegexOptions.IgnoreCase);
 
@@ -69,14 +84,13 @@ namespace PostLib.Editor
             }
             else
             {
-                string configLine = "const config = {";
-                string injectConfig = "const config = {\n  doNotCaptureKeyboard: true,";
-                
-                if (html.Contains(configLine))
-                {
-                    html = html.Replace(configLine, injectConfig);
-                    Debug.Log("[PostLib] Adicionado doNotCaptureKeyboard ao Config para permitir inputs HTML.");
-                }
+                html = Regex.Replace(
+                    html,
+                    @"<canvas([^>]*?)\s+tabindex\s*=\s*""-1""([^>]*)>",
+                    "<canvas$1$2>",
+                    RegexOptions.IgnoreCase);
+    
+                Debug.Log("[PostLib] Removido tabindex do canvas para build de desenvolvimento.");
             }
 
             File.WriteAllText(TemplatePath, html);
