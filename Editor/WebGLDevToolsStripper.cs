@@ -69,13 +69,13 @@ namespace PostLib.Editor
             }
             else
             {
-                string moduleLine = "var Module = {";
-                string injectLine = "var Module = {\n  doNotCaptureKeyboard: true,";
+                string configLine = "const config = {";
+                string injectConfig = "const config = {\n  doNotCaptureKeyboard: true,";
                 
-                if (html.Contains(moduleLine))
+                if (html.Contains(configLine))
                 {
-                    html = html.Replace(moduleLine, injectLine);
-                    Debug.Log("[PostLib] Adicionado doNotCaptureKeyboard ao Module para permitir inputs HTML.");
+                    html = html.Replace(configLine, injectConfig);
+                    Debug.Log("[PostLib] Adicionado doNotCaptureKeyboard ao Config para permitir inputs HTML.");
                 }
             }
 
