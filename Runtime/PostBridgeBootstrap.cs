@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace PostLib
 {
-    internal static class PostBridgeBootstrap
+    public static class PostBridgeBootstrap
     {
         public static void CreateBridgeIfMissing()
         {
