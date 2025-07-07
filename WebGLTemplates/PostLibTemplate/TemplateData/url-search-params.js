@@ -3,12 +3,9 @@
     return urlParams.get(name);
 }
 
-const regulation = (getURLParameter("regulation") || "EN").toUpperCase();
+const regulation = (getURLParameter("regulation") || "en").toLowerCase();
 
-//const logoImg = document.getElementById("unity-logo");
-//const productionText = document.getElementById("production-name");
-
-if (regulation === "BR") {
+if (regulation === "br") {
     window.logoImg.src = "TemplateData/logo_business.png";
     if (window.productionText) {
         window.productionText.style.display = "none";
