@@ -61,8 +61,6 @@ namespace PostLib.Editor
                 AssetDatabase.CreateAsset(settings, settingsAssetPath);
                 Debug.Log($"[PostLib] Asset de configuração criado: {settingsAssetPath}");
             }
-            }
-
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
         }
