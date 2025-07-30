@@ -20,7 +20,7 @@ mergeInto(LibraryManager.library, {
     },
     JS_Send: function (ptr) {
         const json = UTF8ToString(ptr);
-        window.parent.postMessage(JSON.parse(json), '*');
+        window.parent.postMessage(json, '*');
     }
 });
 ";
