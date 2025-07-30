@@ -38,8 +38,6 @@ namespace PostLib.Editor
                 return;
             }
 
-            if (Directory.Exists(dst)) return;
-
             DirectoryCopy(src, dst, true);
             AssetDatabase.Refresh();
             Debug.Log($"[PostLib] WebGL template copiado para: {dst}");
@@ -65,7 +63,6 @@ namespace PostLib.Editor
             AssetDatabase.Refresh();
         }
 
-
         private static string GetPackageRoot()
         {
             var asm = typeof(PostLibTemplateInstaller).Assembly;
@@ -82,11 +79,14 @@ namespace PostLib.Editor
 
             foreach (FileInfo file in dir.GetFiles())
             {
-                if (file.Extension.Equals(".meta", System.StringComparison.OrdinalIgnoreCase))
+                string extension = file.Extension;
+                if (extension.Equals(".meta", System.StringComparison.OrdinalIgnoreCase))
                     continue;
-
+                bool canOverride = extension.Equals(".css", System.StringComparison.OrdinalIgnoreCase) ||
+                                   extension.Equals(".js", System.StringComparison.OrdinalIgnoreCase);
                 var destFile = Path.Combine(destDir, file.Name);
-                file.CopyTo(destFile, true);
+                try { file.CopyTo(destFile, canOverride); }
+                catch { Debug.LogWarning($"{file.Name} already exists"); }
             }
 
             if (copySubDirs)

@@ -18,7 +18,7 @@ namespace PostLib.Editor
             }
 
             var root = new GameObject("LoaderSettings");
-            var loaderScript = root.AddComponent<LoaderSettings>();
+            var loaderScript = root.AddComponent<StartSettings>();
             Selection.activeGameObject = root;
 
             Debug.Log("[LoaderSettings] Objeto criado na cena.");

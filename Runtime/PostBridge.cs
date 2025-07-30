@@ -22,9 +22,8 @@ namespace PostLib
         {
 #if !UNITY_EDITOR && UNITY_WEBGL
             JS_Send(json);
-#else
-            Debug.Log($"[PostLib] {json}");
 #endif
+            Debug.Log($"[PostLib] {json}");
         }
     }
 }
