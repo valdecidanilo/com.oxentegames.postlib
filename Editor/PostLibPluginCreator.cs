@@ -14,7 +14,7 @@ namespace PostLib.Editor
 mergeInto(LibraryManager.library, {
     JS_Receive: function () {
     window.addEventListener('message', function (e) {
-        console.log(json);
+        console.log(e);
         SendMessage('PostBridge', 'OnReceive', e.data);
     });
     },
