@@ -14,9 +14,8 @@ namespace PostLib.Editor
 mergeInto(LibraryManager.library, {
     JS_Receive: function () {
     window.addEventListener('message', function (e) {
-        if (e.data && e.data._type)
-            SendMessage('PostBridge', 'OnReceive', JSON.stringify(e.data));
-        });
+        SendMessage('PostBridge', 'OnReceive', e.data);
+    });
     },
     JS_Send: function (ptr) {
         const json = UTF8ToString(ptr);
