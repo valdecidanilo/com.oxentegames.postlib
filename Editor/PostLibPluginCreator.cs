@@ -14,11 +14,13 @@ namespace PostLib.Editor
 mergeInto(LibraryManager.library, {
     JS_Receive: function () {
     window.addEventListener('message', function (e) {
+        console.log(json);
         SendMessage('PostBridge', 'OnReceive', e.data);
     });
     },
     JS_Send: function (ptr) {
-        const json = ptr.data;
+        const json = UTF8ToString(ptr);
+        console.log(json);
         window.parent.postMessage(json, '*');
     }
 });
