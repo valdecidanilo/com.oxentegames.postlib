@@ -18,7 +18,7 @@ mergeInto(LibraryManager.library, {
     });
     },
     JS_Send: function (ptr) {
-        const json = UTF8ToString(ptr);
+        const json = ptr.data;
         window.parent.postMessage(json, '*');
     }
 });
