@@ -1,7 +1,7 @@
 {
   "name": "com.oxentegames.postlib",
   "displayName": "PostLib",
-  "version": "2.6.51",
+  "version": "2.6.52",
   "unity": "2022.3",
   "unityRelease": "62f1",
   "description": "A library for sending and receiving messages between Unity and web pages using postMessage.",

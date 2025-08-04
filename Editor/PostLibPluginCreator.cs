@@ -15,13 +15,22 @@ mergeInto(LibraryManager.library, {
     JS_Receive: function () {
     window.addEventListener('message', function (e) {
         console.log(e);
-        SendMessage('PostBridge', 'OnReceive', JSON.stringify(e.data));
+        SendMessage('PostBridge', 'OnReceive', e.data);
     });
     },
     JS_Send: function (ptr) {
-        const json = UTF8ToString(ptr);
-        console.log(json);
-        window.top.postMessage(json, '*');
+        const jsonStr = UTF8ToString(ptr);
+        console.log('[Postlib] raw JSON:', jsonStr);
+
+        let data;
+        try {
+            data = JSON.parse(jsonStr);
+        } catch (ex) {
+            console.error('[PostLib] JSON inválido', ex);
+            return;
+        }
+
+        window.top.postMessage(data, '*');
     }
 });
 ";

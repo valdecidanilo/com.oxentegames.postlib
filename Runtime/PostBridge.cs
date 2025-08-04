@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace PostLib
 {
@@ -17,7 +18,7 @@ namespace PostLib
             MessageRouter.SendInitialization();
         }
 
-        public void OnReceive(string json) => MessageRouter.Route(json);
+        public void OnReceive(object jsonObject) => MessageRouter.Route(JsonConvert.SerializeObject(jsonObject));
         public static void Send(string json)
         {
 #if !UNITY_EDITOR && UNITY_WEBGL

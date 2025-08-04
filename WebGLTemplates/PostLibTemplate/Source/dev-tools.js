@@ -37,7 +37,7 @@
         _type: "ucip.pause.w2gPauseCommand",
         pause: !isPaused
       };
-      window.postMessage(msg, "*");
+      window.postMessage(JSON.stringify(msg), "*");
       pauseBtn.textContent = isPaused ? "⏸️ Pause" : "▶️ Resume";
       console.log("[PostLib JS] Toggle pause:", msg);
     };
