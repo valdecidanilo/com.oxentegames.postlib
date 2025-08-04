@@ -88,7 +88,7 @@ namespace PostLib.Editor
                 
                 bool canOverride = extension.Equals(".css", System.StringComparison.OrdinalIgnoreCase) ||
                                    extension.Equals(".js", System.StringComparison.OrdinalIgnoreCase) ||
-                                   extension.Equals(".yml", System.StringComparison.OrdinalIgnoreCase);
+                                   extension.Equals(".txt", System.StringComparison.OrdinalIgnoreCase);
                 var destFile = Path.Combine(destDir, file.Name);
                 try { file.CopyTo(destFile, canOverride); }
                 catch { Debug.LogWarning($"{file.Name} already exists"); }
@@ -100,30 +100,26 @@ namespace PostLib.Editor
         }
         public bool CanUpdateVersion()
         {
-            var deserializer = new DeserializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
+            var remotePath = $"{GetPackageRoot()}/PostLibTemplate/version.txt";
+            var localPath  = $"{TargetRoot}/PostLibTemplate/version.txt";
 
-            var pathRemote = $"{GetPackageRoot()}/PostLibTemplate/version.yml";
-            var yamlRemote = File.ReadAllText(pathRemote);
-            var configRemote = deserializer.Deserialize<TemplateVersion>(yamlRemote);
+            var remoteText = File.ReadAllText(remotePath).Trim();
+            
+            if (!File.Exists(localPath))
+                return true;
+            
+            var localText  = File.ReadAllText(localPath).Trim();
 
-            var pathLocal = $"{TargetRoot}/PostLibTemplate/version.yml";
-            if(File.Exists(pathLocal)) return true;
-            var yamlLocal = File.ReadAllText(pathLocal);
-            var configLocal = deserializer.Deserialize<TemplateVersion>(yamlLocal);
-
-            Version remoteVersion;
-            Version localVersion;
+            Version remoteVersion, localVersion;
             try
             {
-                remoteVersion = new Version(configRemote.Version);
-                localVersion  = new Version(configLocal.Version);
+                remoteVersion = Version.Parse(remoteText);
+                localVersion  = Version.Parse(localText);
             }
-            catch (FormatException ex)
+            catch (Exception ex) when (ex is FormatException || ex is ArgumentNullException)
             {
-                Console.Error.WriteLine($"Erro ao parsear versão: {ex.Message}");
-                return;
+                Debug.LogError($"[PostLib] Versão inválida: {ex.Message}");
+                return false;
             }
 
             int cmp = localVersion.CompareTo(remoteVersion);
@@ -143,10 +139,5 @@ namespace PostLib.Editor
                 return false;
             }
         }
-    }
-    public class TemplateVersion
-    {
-        [YamlMember(Alias = "version")]
-        public string Version { get; set; }
     }
 }
