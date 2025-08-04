@@ -15,7 +15,7 @@ mergeInto(LibraryManager.library, {
     JS_Receive: function () {
     window.addEventListener('message', function (e) {
         console.log(e);
-        SendMessage('PostBridge', 'OnReceive', e.data);
+        SendMessage('PostBridge', 'OnReceive', JSON.stringify(e.data));
     });
     },
     JS_Send: function (ptr) {
