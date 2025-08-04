@@ -100,7 +100,7 @@ namespace PostLib.Editor
         }
         public static bool CanUpdateVersion()
         {
-            var remotePath = $"{GetPackageRoot()}/PostLibTemplate/version.txt";
+            var remotePath = $"{GetPackageRoot()}/WebGLTemplates/PostLibTemplate/version.txt";
             var localPath  = $"{TargetRoot}/PostLibTemplate/version.txt";
 
             var remoteText = File.ReadAllText(remotePath).Trim();
