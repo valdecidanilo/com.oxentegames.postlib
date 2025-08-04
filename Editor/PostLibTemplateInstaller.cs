@@ -113,17 +113,17 @@ namespace PostLib.Editor
             int comparison = CompareNumericVersion(localText, remoteText);
             if (comparison < 0)
             {
-                Debug.Log($"[PostLib] Template desatualizado! Local: {localVersion}, Remoto: {remoteVersion}");
+                Debug.Log($"[PostLib] Template desatualizado! Local: {localText}, Remoto: {remoteText}");
                 return true;
             }
             else if (comparison == 0)
             {
-                Debug.Log($"[PostLib] Você já está na última versão ({localVersion}).");
+                Debug.Log($"[PostLib] Você já está na última versão ({localText}).");
                 return false;
             }
             else
             {
-                Debug.Log($"[PostLib] Local ({localVersion}) é mais recente que o remoto ({remoteVersion}).");
+                Debug.Log($"[PostLib] Local ({localText}) é mais recente que o remoto ({remoteText}).");
                 return false;
             }
         }
