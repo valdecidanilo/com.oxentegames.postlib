@@ -110,25 +110,13 @@ namespace PostLib.Editor
             
             var localText  = File.ReadAllText(localPath).Trim();
 
-            Version remoteVersion, localVersion;
-            try
-            {
-                remoteVersion = Version.Parse(remoteText);
-                localVersion  = Version.Parse(localText);
-            }
-            catch (Exception ex) when (ex is FormatException || ex is ArgumentNullException)
-            {
-                Debug.LogError($"[PostLib] Versão inválida: {ex.Message}");
-                return false;
-            }
-
-            int cmp = localVersion.CompareTo(remoteVersion);
-            if (cmp < 0)
+            int comparison = CompareNumericVersion(localText, remoteText);
+            if (comparison < 0)
             {
                 Debug.Log($"[PostLib] Template desatualizado! Local: {localVersion}, Remoto: {remoteVersion}");
                 return true;
             }
-            else if (cmp == 0)
+            else if (comparison == 0)
             {
                 Debug.Log($"[PostLib] Você já está na última versão ({localVersion}).");
                 return false;
@@ -138,6 +126,22 @@ namespace PostLib.Editor
                 Debug.Log($"[PostLib] Local ({localVersion}) é mais recente que o remoto ({remoteVersion}).");
                 return false;
             }
+        }
+        private static int CompareNumericVersion(string v1, string v2)
+        {
+            var p1 = v1.Split('.');
+            var p2 = v2.Split('.');
+            int len = Math.Max(p1.Length, p2.Length);
+
+            for (int i = 0; i < len; i++)
+            {
+                int n1 = (i < p1.Length && int.TryParse(p1[i], out var x1)) ? x1 : 0;
+                int n2 = (i < p2.Length && int.TryParse(p2[i], out var x2)) ? x2 : 0;
+
+                if (n1 < n2) return -1;
+                if (n1 > n2) return +1;
+            }
+            return 0;
         }
     }
 }
