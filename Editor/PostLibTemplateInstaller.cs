@@ -98,7 +98,7 @@ namespace PostLib.Editor
                 foreach (DirectoryInfo sub in dir.GetDirectories())
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
         }
-        public bool CanUpdateVersion()
+        public static bool CanUpdateVersion()
         {
             var remotePath = $"{GetPackageRoot()}/PostLibTemplate/version.txt";
             var localPath  = $"{TargetRoot}/PostLibTemplate/version.txt";
