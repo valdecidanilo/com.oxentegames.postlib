@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using UnityEditor;
 using UPMPackageInfo = UnityEditor.PackageManager.PackageInfo;
 using UnityEngine;
@@ -72,9 +73,11 @@ namespace PostLib.Editor
 
         private static void DirectoryCopy(string sourceDir, string destDir, bool copySubDirs)
         {
+            if(!CanUpdateVersion()) return;
+
             var dir = new DirectoryInfo(sourceDir);
             if (!dir.Exists) return;
-
+            
             Directory.CreateDirectory(destDir);
 
             foreach (FileInfo file in dir.GetFiles())
@@ -82,8 +85,10 @@ namespace PostLib.Editor
                 string extension = file.Extension;
                 if (extension.Equals(".meta", System.StringComparison.OrdinalIgnoreCase))
                     continue;
+                
                 bool canOverride = extension.Equals(".css", System.StringComparison.OrdinalIgnoreCase) ||
-                                   extension.Equals(".js", System.StringComparison.OrdinalIgnoreCase);
+                                   extension.Equals(".js", System.StringComparison.OrdinalIgnoreCase) ||
+                                   extension.Equals(".yml", System.StringComparison.OrdinalIgnoreCase);
                 var destFile = Path.Combine(destDir, file.Name);
                 try { file.CopyTo(destFile, canOverride); }
                 catch { Debug.LogWarning($"{file.Name} already exists"); }
@@ -93,5 +98,55 @@ namespace PostLib.Editor
                 foreach (DirectoryInfo sub in dir.GetDirectories())
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
         }
+        public bool CanUpdateVersion()
+        {
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            var pathRemote = $"{GetPackageRoot()}/PostLibTemplate/version.yml";
+            var yamlRemote = File.ReadAllText(pathRemote);
+            var configRemote = deserializer.Deserialize<TemplateVersion>(yamlRemote);
+
+            var pathLocal = $"{TargetRoot}/PostLibTemplate/version.yml";
+            if(File.Exists(pathLocal)) return true;
+            var yamlLocal = File.ReadAllText(pathLocal);
+            var configLocal = deserializer.Deserialize<TemplateVersion>(yamlLocal);
+
+            Version remoteVersion;
+            Version localVersion;
+            try
+            {
+                remoteVersion = new Version(configRemote.Version);
+                localVersion  = new Version(configLocal.Version);
+            }
+            catch (FormatException ex)
+            {
+                Console.Error.WriteLine($"Erro ao parsear versão: {ex.Message}");
+                return;
+            }
+
+            int cmp = localVersion.CompareTo(remoteVersion);
+            if (cmp < 0)
+            {
+                Debug.Log($"[PostLib] Template desatualizado! Local: {localVersion}, Remoto: {remoteVersion}");
+                return true;
+            }
+            else if (cmp == 0)
+            {
+                Debug.Log($"[PostLib] Você já está na última versão ({localVersion}).");
+                return =  false;
+            }
+            else
+            {
+                Debug.Log($"[PostLib] Local ({localVersion}) é mais recente que o remoto ({remoteVersion}).");
+                return false;
+            }
+        }
+    }
+    public class TemplateVersion
+    {
+        [YamlMember(Alias = "version")]
+        public string Version { get; set; }
     }
 }
