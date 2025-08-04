@@ -21,7 +21,7 @@ mergeInto(LibraryManager.library, {
     JS_Send: function (ptr) {
         const json = UTF8ToString(ptr);
         console.log(json);
-        window.parent.postMessage(json, '*');
+        window.top.postMessage(json, '*');
     }
 });
 ";
