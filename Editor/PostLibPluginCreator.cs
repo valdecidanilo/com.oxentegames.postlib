@@ -25,7 +25,6 @@ mergeInto(LibraryManager.library, {
     }
 });
 ";
-
         static PostLibPluginCreator()
         {
             EnsurePluginFile();
