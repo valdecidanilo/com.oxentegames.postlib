@@ -40,8 +40,6 @@ namespace PostLib.Editor
             }
 
             DirectoryCopy(src, dst, true);
-            AssetDatabase.Refresh();
-            Debug.Log($"[PostLib] WebGL template copiado para: {dst}");
         }
 
         /* ------------------------------------------------------------ */
@@ -97,6 +95,9 @@ namespace PostLib.Editor
             if (copySubDirs)
                 foreach (DirectoryInfo sub in dir.GetDirectories())
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
+            
+            AssetDatabase.Refresh();
+            Debug.Log($"[PostLib] WebGL template copiado para: {dst}");
         }
         public static bool CanUpdateVersion()
         {
