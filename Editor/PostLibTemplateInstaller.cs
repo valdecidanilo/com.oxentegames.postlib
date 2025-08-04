@@ -97,7 +97,7 @@ namespace PostLib.Editor
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
             
             AssetDatabase.Refresh();
-            Debug.Log($"[PostLib] WebGL template copiado para: {dst}");
+            Debug.Log($"[PostLib] WebGL template copiado para: {destDir}");
         }
         public static bool CanUpdateVersion()
         {
