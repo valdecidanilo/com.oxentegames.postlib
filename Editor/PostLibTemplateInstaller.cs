@@ -135,7 +135,7 @@ namespace PostLib.Editor
             else if (cmp == 0)
             {
                 Debug.Log($"[PostLib] Você já está na última versão ({localVersion}).");
-                return =  false;
+                return false;
             }
             else
             {
