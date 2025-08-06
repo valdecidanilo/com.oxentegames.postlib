@@ -4,12 +4,12 @@ using UnityEngine;
 
 namespace PostLib.Editor
 {
-    /// <summary>Cria/atualiza o arquivo PostLib.jslib quando o projeto recompila.</summary>
+    /// <summary>Cria/atualiza os arquivos .jslib quando o projeto recompila.</summary>
     [InitializeOnLoad]
     internal static class PostLibPluginCreator
     {
         private const string PluginPath = "Assets/Plugins/WebGL/PostLib.jslib";
-
+        private const string PluginUserAgentPath = "Assets/Plugins/WebGL/UserAgent.jslib";
         private const string PluginSource = @"
 mergeInto(LibraryManager.library, {
     JS_Receive: function () {
@@ -34,9 +34,32 @@ mergeInto(LibraryManager.library, {
     }
 });
 ";
+        private const string PluginUserAgent = @"
+mergeInto(LibraryManager.library, {
+  GetUserAgent: function() {
+    var ua = navigator.userAgent;
+    return allocate(intArrayFromString(ua), 'i8', ALLOC_NORMAL);
+  },
+  IsMobileDevice: function() {
+    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
+      return navigator.userAgentData.mobile ? 1 : 0;
+    }
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 1 : 0;
+  },
+  GetPlatformHint: function() {
+    if (navigator.userAgentData && navigator.userAgentData.platform) {
+      var plat = navigator.userAgentData.platform;
+      return allocate(intArrayFromString(plat), 'i8', ALLOC_NORMAL);
+    }
+    var fallback = navigator.platform || 'unknown';
+    return allocate(intArrayFromString(fallback), 'i8', ALLOC_NORMAL);
+  }
+});
+        ";
         static PostLibPluginCreator()
         {
             EnsurePluginFile();
+            EnsurePluginUserAgentFile();
         }
 
         private static void EnsurePluginFile()
@@ -48,6 +71,18 @@ mergeInto(LibraryManager.library, {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginSource);
                 Debug.Log("[PostLib] PostLib.jslib atualizado em: " + PluginPath);
+                AssetDatabase.Refresh();
+            }
+        }
+        private static void EnsurePluginUserAgentFile()
+        {
+            var fullPath = Path.GetFullPath(PluginUserAgentPath);
+
+            if (!File.Exists(fullPath) || File.ReadAllText(fullPath) != PluginUserAgent)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                File.WriteAllText(fullPath, PluginUserAgent);
+                Debug.Log("[PostLib] UserAgent.jslib atualizado em: " + PluginUserAgentPath);
                 AssetDatabase.Refresh();
             }
         }
