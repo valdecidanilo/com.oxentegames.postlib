@@ -40,14 +40,21 @@ mergeInto(LibraryManager.library, {
     return allocateUTF8(navigator.userAgent);
   },
   IsMobileDevice: function() {
-    return (navigator.userAgentData?.mobile === true ||
-            /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
-           ? 1 : 0;
+    var uaData = navigator.userAgentData;
+    var isHintMobile = uaData && uaData.mobile === true;
+    var regexMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    return (isHintMobile || regexMobile) ? 1 : 0;
   },
   GetPlatformHint: function() {
-    const plat = navigator.userAgentData?.platform
-                 || navigator.platform
-                 || 'unknown';
+    var uaData = navigator.userAgentData;
+    var plat;
+    if (uaData && uaData.platform) {
+      plat = uaData.platform;
+    } else if (navigator.platform) {
+      plat = navigator.platform;
+    } else {
+      plat = 'unknown';
+    }
     return allocateUTF8(plat);
   }
 });
