@@ -37,11 +37,7 @@ mergeInto(LibraryManager.library, {
         private const string PluginUserAgent = @"
 mergeInto(LibraryManager.library, {
   GetUserAgent: function() {
-    const ua = navigator.userAgent;
-    const size = lengthBytesUTF8(ua) + 1;
-    const ptr  = _malloc(size);
-    stringToUTF8(ua, ptr, size);
-    return ptr;
+    return allocateUTF8(navigator.userAgent);
   },
   IsMobileDevice: function() {
     return (navigator.userAgentData?.mobile === true ||
@@ -52,10 +48,7 @@ mergeInto(LibraryManager.library, {
     const plat = navigator.userAgentData?.platform
                  || navigator.platform
                  || 'unknown';
-    const size = lengthBytesUTF8(plat) + 1;
-    const ptr  = _malloc(size);
-    stringToUTF8(plat, ptr, size);
-    return ptr;
+    return allocateUTF8(plat);
   }
 });
         ";
