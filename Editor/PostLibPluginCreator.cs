@@ -37,22 +37,25 @@ mergeInto(LibraryManager.library, {
         private const string PluginUserAgent = @"
 mergeInto(LibraryManager.library, {
   GetUserAgent: function() {
-    var ua = navigator.userAgent;
-    return allocate(intArrayFromString(ua), 'i8', ALLOC_NORMAL);
+    const ua = navigator.userAgent;
+    const size = lengthBytesUTF8(ua) + 1;
+    const ptr  = _malloc(size);
+    stringToUTF8(ua, ptr, size);
+    return ptr;
   },
   IsMobileDevice: function() {
-    if (navigator.userAgentData && typeof navigator.userAgentData.mobile === 'boolean') {
-      return navigator.userAgentData.mobile ? 1 : 0;
-    }
-    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ? 1 : 0;
+    return (navigator.userAgentData?.mobile === true ||
+            /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
+           ? 1 : 0;
   },
   GetPlatformHint: function() {
-    if (navigator.userAgentData && navigator.userAgentData.platform) {
-      var plat = navigator.userAgentData.platform;
-      return allocate(intArrayFromString(plat), 'i8', ALLOC_NORMAL);
-    }
-    var fallback = navigator.platform || 'unknown';
-    return allocate(intArrayFromString(fallback), 'i8', ALLOC_NORMAL);
+    const plat = navigator.userAgentData?.platform
+                 || navigator.platform
+                 || 'unknown';
+    const size = lengthBytesUTF8(plat) + 1;
+    const ptr  = _malloc(size);
+    stringToUTF8(plat, ptr, size);
+    return ptr;
   }
 });
         ";
