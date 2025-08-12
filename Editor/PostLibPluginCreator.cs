@@ -30,7 +30,7 @@ mergeInto(LibraryManager.library, {
             return;
         }
 
-        window.top.postMessage(data, '*');
+        window.parent.postMessage(data, '*');
     }
 });
 ";
