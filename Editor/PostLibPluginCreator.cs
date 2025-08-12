@@ -30,7 +30,14 @@ mergeInto(LibraryManager.library, {
             return;
         }
 
-        window.parent.postMessage(data, '*');
+        let msg;
+        if (data && typeof data === 'object' && !Array.isArray(data)) {
+          msg = { ...data, internal: true };
+        } else {
+          msg = { payload: data, internal: true };
+        }
+    
+        window.parent.postMessage(msg, '*');
     }
 });
 ";

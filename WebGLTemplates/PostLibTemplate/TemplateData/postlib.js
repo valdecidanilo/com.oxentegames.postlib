@@ -1,3 +1,4 @@
+/*
 const GAME_FEATURES = [
     "gamestatus",
     ["openpage", { delegatePages: ["deposit", "game_history"] }],
@@ -19,3 +20,4 @@ window.addEventListener("message", (event) => {
         }, 100);
     }
 });
+*/
