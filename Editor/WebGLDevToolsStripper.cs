@@ -131,21 +131,25 @@ namespace PostLib.Editor
                 return;
 
             bool isDevBuild = IsDevBuild(report);
-            Debug.Log($"[PostLib] Postprocess - Detected as DEV BUILD: {isDevBuild}");
+            Debug.Log($"[PostLib] Postprocess - Build type: {(isDevBuild ? "DEV" : "RELEASE")}");
 
-            // Restaurar HTML original
+            // SEMPRE restaurar HTML original do backup
             if (!string.IsNullOrEmpty(_backupHtmlPath) && File.Exists(_backupHtmlPath))
             {
                 try
                 {
                     File.Copy(_backupHtmlPath, TemplatePath, true);
                     File.Delete(_backupHtmlPath);
-                    Debug.Log("[PostLib] Template HTML restaurado após build.");
+                    Debug.Log("[PostLib] ✅ HTML original restaurado do backup. Template volta ao estado original.");
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[PostLib] Falha ao restaurar template: {ex.Message}");
+                    Debug.LogError($"[PostLib] ❌ Falha ao restaurar template: {ex.Message}");
                 }
+            }
+            else
+            {
+                Debug.LogWarning("[PostLib] ⚠️ Backup não encontrado! Template pode ter ficado modificado.");
             }
 
             // Restaurar pasta Source APENAS se foi uma release build (que a moveu)
@@ -158,21 +162,27 @@ namespace PostLib.Editor
 
                     Directory.CreateDirectory(Path.GetDirectoryName(SourceDir));
                     Directory.Move(_externalTempDir, SourceDir);
-                    Debug.Log("[PostLib] Pasta Source/ restaurada após build de release.");
+                    Debug.Log("[PostLib] ✅ Pasta Source/ restaurada após build de release.");
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[PostLib] Falha ao restaurar pasta Source/: {ex.Message}");
+                    Debug.LogError($"[PostLib] ❌ Falha ao restaurar pasta Source/: {ex.Message}");
                 }
             }
             else if (isDevBuild)
             {
-                Debug.Log("[PostLib] Build DEV: pasta Source/ permaneceu no template (foi incluída na build).");
+                Debug.Log("[PostLib] ℹ️ Build DEV: pasta Source/ permaneceu no template (foi incluída na build).");
             }
             else
             {
-                Debug.Log("[PostLib] Nenhuma pasta Source/ para restaurar.");
+                Debug.Log("[PostLib] ℹ️ Nenhuma pasta Source/ para restaurar.");
             }
+
+            // Limpar variáveis
+            _backupHtmlPath = null;
+            _externalTempDir = null;
+            
+            Debug.Log("[PostLib] 🏁 Postprocess concluído. Template e Source/ restaurados ao estado original.");
         }
 
         /* =============================== Helpers =============================== */
