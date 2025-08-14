@@ -8,12 +8,6 @@ using UnityEngine;
 
 namespace PostLib.Editor
 {
-    /// <summary>
-    /// Liga/desliga blocos do template WebGL sem sobrescrever o index.html.
-    /// - Em Development: garante DEV_TOOLS ativo e remove tabindex do canvas.
-    /// - Em Release: remove DEV_TOOLS e, se PostLib desativado, remove tudo e move Source/ para fora.
-    /// Sempre restaura o index.html e a pasta Source/ após o build.
-    /// </summary>
     internal class WebGLDevToolsStripper : IPreprocessBuildWithReport, IPostprocessBuildWithReport
     {
         public int callbackOrder => 0;
@@ -36,24 +30,20 @@ namespace PostLib.Editor
             if (report.summary.platform != BuildTarget.WebGL)
                 return;
 
-            bool isDevBuild = (report.summary.options & BuildOptions.Development) != 0;
+            // Detecção robusta de build de desenvolvimento
+            bool isDevBuild =
+                (report.summary.options & BuildOptions.Development) != 0
+                || EditorUserBuildSettings.development;
+
+            Debug.Log($"[PostLib] BuildOptions={report.summary.options} | EditorUserBuildSettings.development={EditorUserBuildSettings.development} | isDevBuild={isDevBuild}");
+
             var settings = PostLibSettings.Instance;
-
-            if (settings == null)
-            {
-                Debug.LogWarning("[PostLib] Não foi possível carregar PostLibSettings.");
-                return;
-            }
-
-            if (!File.Exists(TemplatePath))
-            {
-                Debug.LogWarning($"[PostLib] index.html do template não encontrado em {TemplatePath}");
-                return;
-            }
+            if (settings == null) { Debug.LogWarning("[PostLib] Não foi possível carregar PostLibSettings.Instance."); return; }
+            if (!File.Exists(TemplatePath)) { Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); return; }
 
             try
             {
-                // Backup do HTML original para restaurar no PostProcess
+                // Backup do HTML para restauração no pós-build
                 _backupHtmlPath = TemplatePath + ".bak";
                 File.Copy(TemplatePath, _backupHtmlPath, true);
 
@@ -61,43 +51,35 @@ namespace PostLib.Editor
 
                 if (!settings.enablePostLib)
                 {
-                    // PostLib desativado: remove tudo (PostLib e DevTools) e move Source/ para fora
+                    // PostLib OFF → strip total + move Source/
                     html = StripPostLibRegion(html);
                     html = StripDevToolsRegion(html);
                     File.WriteAllText(TemplatePath, html);
-
-                    Debug.Log("[PostLib] PostLib e DevTools removidos (PostLib desativado).");
+                    Debug.Log("[PostLib] PostLib desativado: removidos POSTLIB e DEV_TOOLS.");
                     MoveSourceOut();
                     return;
                 }
 
                 if (isDevBuild)
                 {
-                    // DEVELOPMENT BUILD
+                    // DEV → manter/garantir DEV_TOOLS e NÃO mover Source/
                     html = RemoveCanvasTabIndex(html);
-                    html = EnsureDevToolsBlock(html);   // garante bloco DEV ativo
+                    html = EnsureDevToolsBlock(html);
                     File.WriteAllText(TemplatePath, html);
-
-                    Debug.Log("[PostLib] Build DEV: DevTools garantidos e tabindex removido.");
+                    Debug.Log("[PostLib] Build DEV: DEV_TOOLS preservado/ativado e tabindex removido.");
+                    return; // IMPORTANTÍSSIMO: impede cair na lógica de release
                 }
-                else
-                {
-                    // RELEASE BUILD
-                    // (opcional) limpeza de CSS no release
-                    CleanUnityContainerPositionProps();
 
-                    // Remove somente DevTools (mantém PostLib)
-                    html = StripDevToolsRegion(html);
-                    File.WriteAllText(TemplatePath, html);
-
-                    Debug.Log("[PostLib] Build RELEASE: DevTools removidos.");
-                    MoveSourceOut(); // evita incluir devtools.* na build
-                }
+                // RELEASE → remover apenas DEV_TOOLS; manter PostLib; mover Source/
+                CleanUnityContainerPositionProps();
+                html = StripDevToolsRegion(html);
+                File.WriteAllText(TemplatePath, html);
+                Debug.Log("[PostLib] Build RELEASE: DEV_TOOLS removido.");
+                MoveSourceOut();
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[PostLib] Erro no Preprocess: {ex.Message}\n{ex.StackTrace}");
-                // Em erro no preprocess, tentaremos restaurar já aqui para não deixar arquivo quebrado
                 TryRestoreTemplateImmediate();
             }
         }
@@ -127,10 +109,8 @@ namespace PostLib.Editor
                     if (Directory.Exists(SourceDir))
                         Directory.Delete(SourceDir, true);
 
-                    // Garante pasta pai
                     Directory.CreateDirectory(Path.GetDirectoryName(SourceDir));
                     Directory.Move(_externalTempDir, SourceDir);
-
                     Debug.Log("[PostLib] Pasta Source/ restaurada após build.");
                 }
                 catch (Exception ex)
@@ -165,14 +145,11 @@ namespace PostLib.Editor
         }
 
         /// <summary>
-        /// Remove atributo tabindex do <canvas> (robusto p/ aspas simples/duplas e variações).
-        /// Não mexe na ordem de outros atributos.
+        /// Remove atributo tabindex do &lt;canvas&gt; (robusto p/ aspas simples/duplas e variações).
         /// </summary>
         private static string RemoveCanvasTabIndex(string html)
         {
             // Remove somente o atributo tabindex=..., preservando o resto.
-            // 1) remove " tabindex=..." onde o valor pode ser -1, " -1 ", '-1' etc.
-            // 2) limpa espaços duplos criados.
             var withoutTabIndex = Regex.Replace(
                 html,
                 @"(<canvas\b[^>]*?)\s+tabindex\s*=\s*(['""]?-?\d+['""]?)",
@@ -180,14 +157,13 @@ namespace PostLib.Editor
                 RegexOptions.IgnoreCase
             );
 
-            // Ajuste fino para não deixar múltiplos espaços antes de '>'
+            // Normaliza espaços duplicados dentro da tag <canvas ...>
             withoutTabIndex = Regex.Replace(
                 withoutTabIndex,
                 @"<canvas\b([^>]*)>",
                 m =>
                 {
                     var attrs = m.Groups[1].Value;
-                    // normaliza espaços
                     attrs = Regex.Replace(attrs, @"\s{2,}", " ");
                     return "<canvas" + attrs + ">";
                 },
@@ -197,11 +173,6 @@ namespace PostLib.Editor
             return withoutTabIndex;
         }
 
-        /// <summary>
-        /// Garante que exista um bloco DEV_TOOLS com links/scripts ativos.
-        /// Se já existir, “descomenta” tags comuns dentro dele.
-        /// Se não existir, injeta um bloco padrão antes de </head> (fallback </body>).
-        /// </summary>
         private static string EnsureDevToolsBlock(string html)
         {
             var devRegionPattern = $"{Regex.Escape(DevStart)}[\\s\\S]*?{Regex.Escape(DevEnd)}";
@@ -209,7 +180,7 @@ namespace PostLib.Editor
 
             if (hasDevRegion)
             {
-                // Descomenta tags comuns (<script>/<link>/<style>) comentadas dentro da região
+                // Descomenta tags (<script>/<link>/<style>) que possam estar comentadas dentro do bloco
                 html = Regex.Replace(
                     html,
                     $"{Regex.Escape(DevStart)}([\\s\\S]*?){Regex.Escape(DevEnd)}",
@@ -217,15 +188,12 @@ namespace PostLib.Editor
                     {
                         var inner = m.Groups[1].Value;
 
-                        // Comentário HTML envolvendo uma tag -> reativa
                         inner = Regex.Replace(inner,
                             @"<!--\s*(<(?:script|link|style)\b[\s\S]*?>)\s*-->",
                             "$1",
                             RegexOptions.IgnoreCase);
 
-                        // Também normaliza espaços duplicados incidentais
                         inner = Regex.Replace(inner, @"\n\s+\n", "\n");
-
                         return $"{DevStart}\n{inner}\n{DevEnd}";
                     },
                     RegexOptions.IgnoreCase
@@ -233,7 +201,7 @@ namespace PostLib.Editor
             }
             else
             {
-                // Injeta bloco padrão
+                // Injeta bloco padrão de DEV_TOOLS
                 var injection = $@"
 {DevStart}
 <link rel=""stylesheet"" href=""Source/devtools.css"">
@@ -272,7 +240,6 @@ namespace PostLib.Editor
 
                 string css = File.ReadAllText(StyleCssPath);
 
-                // Remove propriedades apenas dentro do seletor #unity-container { ... }
                 css = Regex.Replace(
                     css,
                     @"(#unity-container\s*{[^}]*?)\b(position|top|left)\s*:\s*[^;]+;\s*",
@@ -290,8 +257,7 @@ namespace PostLib.Editor
         }
 
         /// <summary>
-        /// Move a pasta Source/ para fora do template (para não ir na build).
-        /// Restaura no Postprocess.
+        /// Move a pasta Source/ para fora do template (para não ir na build). Restaura no Postprocess.
         /// </summary>
         private void MoveSourceOut()
         {
