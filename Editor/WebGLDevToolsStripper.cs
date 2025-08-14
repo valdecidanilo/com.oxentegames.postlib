@@ -76,17 +76,20 @@ namespace PostLib.Editor
                     html = RemoveCanvasTabIndex(html);
                     html = EnsureDevToolsBlock(html);
                     File.WriteAllText(TemplatePath, html);
-                    Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado e tabindex removido.");
+                    Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado, tabindex removido e Source/ mantida.");
+                    // NÃO mover Source/ em dev builds - ela precisa estar disponível
                     return; // IMPORTANTE: não executar a lógica de release
                 }
-
-                // RELEASE BUILD → remover apenas DEV_TOOLS; manter PostLib; mover Source/
-                Debug.Log("[PostLib] Build RELEASE detectado: processando remoção de DEV_TOOLS...");
-                CleanUnityContainerPositionProps();
-                html = StripDevToolsRegion(html);
-                File.WriteAllText(TemplatePath, html);
-                Debug.Log("[PostLib] Build RELEASE: DEV_TOOLS removido.");
-                MoveSourceOut();
+                else
+                {
+                    // RELEASE BUILD → remover apenas DEV_TOOLS; manter PostLib; mover Source/
+                    Debug.Log("[PostLib] Build RELEASE detectado: processando remoção de DEV_TOOLS...");
+                    CleanUnityContainerPositionProps();
+                    html = StripDevToolsRegion(html);
+                    File.WriteAllText(TemplatePath, html);
+                    Debug.Log("[PostLib] Build RELEASE: DEV_TOOLS removido.");
+                    MoveSourceOut(); // Só mover Source/ em release builds
+                }
             }
             catch (Exception ex)
             {
@@ -127,6 +130,9 @@ namespace PostLib.Editor
             if (report.summary.platform != BuildTarget.WebGL)
                 return;
 
+            bool isDevBuild = IsDevBuild(report);
+            Debug.Log($"[PostLib] Postprocess - Detected as DEV BUILD: {isDevBuild}");
+
             // Restaurar HTML original
             if (!string.IsNullOrEmpty(_backupHtmlPath) && File.Exists(_backupHtmlPath))
             {
@@ -142,8 +148,8 @@ namespace PostLib.Editor
                 }
             }
 
-            // Restaurar pasta Source se ela foi movida
-            if (!string.IsNullOrEmpty(_externalTempDir) && Directory.Exists(_externalTempDir))
+            // Restaurar pasta Source APENAS se foi uma release build (que a moveu)
+            if (!isDevBuild && !string.IsNullOrEmpty(_externalTempDir) && Directory.Exists(_externalTempDir))
             {
                 try
                 {
@@ -152,12 +158,16 @@ namespace PostLib.Editor
 
                     Directory.CreateDirectory(Path.GetDirectoryName(SourceDir));
                     Directory.Move(_externalTempDir, SourceDir);
-                    Debug.Log("[PostLib] Pasta Source/ restaurada após build.");
+                    Debug.Log("[PostLib] Pasta Source/ restaurada após build de release.");
                 }
                 catch (Exception ex)
                 {
                     Debug.LogError($"[PostLib] Falha ao restaurar pasta Source/: {ex.Message}");
                 }
+            }
+            else if (isDevBuild)
+            {
+                Debug.Log("[PostLib] Build DEV: pasta Source/ não foi movida, nada para restaurar.");
             }
         }
 
@@ -249,8 +259,8 @@ namespace PostLib.Editor
                 // Injeta bloco padrão de DEV_TOOLS
                 var injection = $@"
 {DevStart}
-<link rel=""stylesheet"" href=""Source/devtools.css"">
-<script src=""Source/devtools.js""></script>
+<link rel=""stylesheet"" href=""Source/dev-tools.css"">
+<script src=""Source/dev-tools.js""></script>
 {DevEnd}";
 
                 if (Regex.IsMatch(html, "</head>", RegexOptions.IgnoreCase))
