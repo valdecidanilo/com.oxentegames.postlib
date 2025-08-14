@@ -72,23 +72,23 @@ namespace PostLib.Editor
 
                 if (isDevBuild)
                 {
-                    // DEV BUILD → manter/garantir DEV_TOOLS e NÃO mover Source/
+                    // DEV BUILD → manter/garantir DEV_TOOLS e manter Source/
                     html = RemoveCanvasTabIndex(html);
                     html = EnsureDevToolsBlock(html);
                     File.WriteAllText(TemplatePath, html);
-                    Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado, tabindex removido e Source/ mantida.");
-                    // NÃO mover Source/ em dev builds - ela precisa estar disponível
+                    Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado, tabindex removido e Source/ mantida para a build.");
+                    // Source/ fica no lugar para ir na build de dev
                     return; // IMPORTANTE: não executar a lógica de release
                 }
                 else
                 {
-                    // RELEASE BUILD → remover apenas DEV_TOOLS; manter PostLib; mover Source/
+                    // RELEASE BUILD → remover DEV_TOOLS; manter PostLib; mover Source/
                     Debug.Log("[PostLib] Build RELEASE detectado: processando remoção de DEV_TOOLS...");
                     CleanUnityContainerPositionProps();
                     html = StripDevToolsRegion(html);
                     File.WriteAllText(TemplatePath, html);
                     Debug.Log("[PostLib] Build RELEASE: DEV_TOOLS removido.");
-                    MoveSourceOut(); // Só mover Source/ em release builds
+                    MoveSourceOut(); // Mover Source/ para NÃO ir na build de release
                 }
             }
             catch (Exception ex)
@@ -167,7 +167,11 @@ namespace PostLib.Editor
             }
             else if (isDevBuild)
             {
-                Debug.Log("[PostLib] Build DEV: pasta Source/ não foi movida, nada para restaurar.");
+                Debug.Log("[PostLib] Build DEV: pasta Source/ permaneceu no template (foi incluída na build).");
+            }
+            else
+            {
+                Debug.Log("[PostLib] Nenhuma pasta Source/ para restaurar.");
             }
         }
 
@@ -231,8 +235,16 @@ namespace PostLib.Editor
 
             if (hasDevRegion)
             {
-                Debug.Log("[PostLib] DEV_TOOLS region já existe, garantindo que não esteja comentado...");
+                Debug.Log("[PostLib] DEV_TOOLS region já existe, garantindo que esteja ativa e descomentada...");
                 
+                // Garantir que o bloco inteiro não esteja comentado e descomenta conteúdo interno
+                html = Regex.Replace(
+                    html,
+                    $"<!--\\s*{Regex.Escape(DevStart)}([\\s\\S]*?){Regex.Escape(DevEnd)}\\s*-->",
+                    $"{DevStart}$1{DevEnd}",
+                    RegexOptions.IgnoreCase
+                );
+
                 // Descomenta tags (<script>/<link>/<style>) que possam estar comentadas dentro do bloco
                 html = Regex.Replace(
                     html,
@@ -241,16 +253,21 @@ namespace PostLib.Editor
                     {
                         var inner = m.Groups[1].Value;
 
+                        // Descomentar tags individuais dentro do bloco
                         inner = Regex.Replace(inner,
                             @"<!--\s*(<(?:script|link|style)\b[\s\S]*?>)\s*-->",
                             "$1",
                             RegexOptions.IgnoreCase);
 
+                        // Limpar linhas vazias excessivas
                         inner = Regex.Replace(inner, @"\n\s+\n", "\n");
+                        
                         return $"{DevStart}\n{inner}\n{DevEnd}";
                     },
                     RegexOptions.IgnoreCase
                 );
+
+                Debug.Log("[PostLib] DEV_TOOLS region processada e ativada.");
             }
             else
             {
@@ -266,14 +283,17 @@ namespace PostLib.Editor
                 if (Regex.IsMatch(html, "</head>", RegexOptions.IgnoreCase))
                 {
                     html = Regex.Replace(html, "</head>", $"{injection}\n</head>", RegexOptions.IgnoreCase);
+                    Debug.Log("[PostLib] DEV_TOOLS injetado antes de </head>");
                 }
                 else if (Regex.IsMatch(html, "</body>", RegexOptions.IgnoreCase))
                 {
                     html = Regex.Replace(html, "</body>", $"{injection}\n</body>", RegexOptions.IgnoreCase);
+                    Debug.Log("[PostLib] DEV_TOOLS injetado antes de </body>");
                 }
                 else
                 {
                     html += injection;
+                    Debug.Log("[PostLib] DEV_TOOLS adicionado ao final do HTML");
                 }
             }
 
