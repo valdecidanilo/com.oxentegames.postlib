@@ -16,7 +16,20 @@ mergeInto(LibraryManager.library, {
     window.addEventListener('message', function (e) {
       if(e.data.internal === true) return;
         console.log('[PNP -> PostLib]: ', e);
-        SendMessage('PostBridge', 'OnReceive', JSON.stringify(e.data));
+        try 
+        {
+            if (typeof unityInstance !== 'undefined') {
+                unityInstance.SendMessage(
+                    'PostBridge', 
+                    'OnReceive', 
+                    JSON.stringify(e.data)
+                );
+            } else {
+                console.error('UnityInstance não está definido');
+            }
+        } catch (error) {
+            console.error('Erro ao enviar mensagem para Unity:', error);
+        }
     });
     },
     JS_Send: function (ptr) {
