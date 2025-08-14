@@ -30,16 +30,26 @@ namespace PostLib.Editor
             if (report.summary.platform != BuildTarget.WebGL)
                 return;
 
-            // Detecção robusta de build de desenvolvimento
-            bool isDevBuild =
-                (report.summary.options & BuildOptions.Development) != 0
-                || EditorUserBuildSettings.development;
-
-            Debug.Log($"[PostLib] BuildOptions={report.summary.options} | EditorUserBuildSettings.development={EditorUserBuildSettings.development} | isDevBuild={isDevBuild}");
+            // Detecção melhorada de build de desenvolvimento
+            bool isDevBuild = IsDevBuild(report);
+            
+            Debug.Log($"[PostLib] Platform: {report.summary.platform}");
+            Debug.Log($"[PostLib] BuildOptions: {report.summary.options}");
+            Debug.Log($"[PostLib] EditorUserBuildSettings.development: {EditorUserBuildSettings.development}");
+            Debug.Log($"[PostLib] Detected as DEV BUILD: {isDevBuild}");
 
             var settings = PostLibSettings.Instance;
-            if (settings == null) { Debug.LogWarning("[PostLib] Não foi possível carregar PostLibSettings.Instance."); return; }
-            if (!File.Exists(TemplatePath)) { Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); return; }
+            if (settings == null) 
+            { 
+                Debug.LogWarning("[PostLib] Não foi possível carregar PostLibSettings.Instance."); 
+                return; 
+            }
+            
+            if (!File.Exists(TemplatePath)) 
+            { 
+                Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); 
+                return; 
+            }
 
             try
             {
@@ -62,15 +72,16 @@ namespace PostLib.Editor
 
                 if (isDevBuild)
                 {
-                    // DEV → manter/garantir DEV_TOOLS e NÃO mover Source/
+                    // DEV BUILD → manter/garantir DEV_TOOLS e NÃO mover Source/
                     html = RemoveCanvasTabIndex(html);
                     html = EnsureDevToolsBlock(html);
                     File.WriteAllText(TemplatePath, html);
-                    Debug.Log("[PostLib] Build DEV: DEV_TOOLS preservado/ativado e tabindex removido.");
-                    return; // IMPORTANTÍSSIMO: impede cair na lógica de release
+                    Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado e tabindex removido.");
+                    return; // IMPORTANTE: não executar a lógica de release
                 }
 
-                // RELEASE → remover apenas DEV_TOOLS; manter PostLib; mover Source/
+                // RELEASE BUILD → remover apenas DEV_TOOLS; manter PostLib; mover Source/
+                Debug.Log("[PostLib] Build RELEASE detectado: processando remoção de DEV_TOOLS...");
                 CleanUnityContainerPositionProps();
                 html = StripDevToolsRegion(html);
                 File.WriteAllText(TemplatePath, html);
@@ -84,8 +95,38 @@ namespace PostLib.Editor
             }
         }
 
+        /// <summary>
+        /// Detecção robusta de build de desenvolvimento
+        /// </summary>
+        private bool IsDevBuild(BuildReport report)
+        {
+            // Verificar se o Development Build está marcado no BuildOptions
+            bool hasDevelopmentFlag = (report.summary.options & BuildOptions.Development) != 0;
+            
+            // Verificar se o Development Build está marcado nas configurações do editor
+            bool editorDevSetting = EditorUserBuildSettings.development;
+            
+            // Verificar configurações específicas do WebGL
+            bool webglDevMode = false;
+            #if UNITY_2019_1_OR_NEWER
+            webglDevMode = EditorUserBuildSettings.GetPlatformSettings("WebGL", "DevelopmentBuild") == "True";
+            #endif
+            
+            // Log detalhado para debug
+            Debug.Log($"[PostLib] Development Detection:");
+            Debug.Log($"  - BuildOptions.Development flag: {hasDevelopmentFlag}");
+            Debug.Log($"  - EditorUserBuildSettings.development: {editorDevSetting}");
+            Debug.Log($"  - WebGL Platform DevelopmentBuild: {webglDevMode}");
+            
+            // É build de desenvolvimento se qualquer uma das condições for verdadeira
+            return hasDevelopmentFlag || editorDevSetting || webglDevMode;
+        }
+
         public void OnPostprocessBuild(BuildReport report)
         {
+            if (report.summary.platform != BuildTarget.WebGL)
+                return;
+
             // Restaurar HTML original
             if (!string.IsNullOrEmpty(_backupHtmlPath) && File.Exists(_backupHtmlPath))
             {
@@ -93,7 +134,7 @@ namespace PostLib.Editor
                 {
                     File.Copy(_backupHtmlPath, TemplatePath, true);
                     File.Delete(_backupHtmlPath);
-                    Debug.Log("[PostLib] Template restaurado após build.");
+                    Debug.Log("[PostLib] Template HTML restaurado após build.");
                 }
                 catch (Exception ex)
                 {
@@ -180,6 +221,8 @@ namespace PostLib.Editor
 
             if (hasDevRegion)
             {
+                Debug.Log("[PostLib] DEV_TOOLS region já existe, garantindo que não esteja comentado...");
+                
                 // Descomenta tags (<script>/<link>/<style>) que possam estar comentadas dentro do bloco
                 html = Regex.Replace(
                     html,
@@ -201,6 +244,8 @@ namespace PostLib.Editor
             }
             else
             {
+                Debug.Log("[PostLib] DEV_TOOLS region não encontrada, injetando bloco padrão...");
+                
                 // Injeta bloco padrão de DEV_TOOLS
                 var injection = $@"
 {DevStart}
@@ -263,7 +308,11 @@ namespace PostLib.Editor
         {
             try
             {
-                if (!Directory.Exists(SourceDir)) return;
+                if (!Directory.Exists(SourceDir)) 
+                {
+                    Debug.Log("[PostLib] Pasta Source/ não encontrada, nada para mover.");
+                    return;
+                }
 
                 string projectRoot = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
                 _externalTempDir = Path.Combine(projectRoot, "Temp", "PostLibTemplateSourceBackup");
@@ -274,7 +323,7 @@ namespace PostLib.Editor
                 Directory.CreateDirectory(Path.GetDirectoryName(_externalTempDir));
                 Directory.Move(SourceDir, _externalTempDir);
 
-                Debug.Log("[PostLib] Pasta Source/ movida temporariamente para fora da build.");
+                Debug.Log($"[PostLib] Pasta Source/ movida temporariamente para: {_externalTempDir}");
             }
             catch (Exception ex)
             {
@@ -293,7 +342,7 @@ namespace PostLib.Editor
                 {
                     File.Copy(_backupHtmlPath, TemplatePath, true);
                     File.Delete(_backupHtmlPath);
-                    Debug.Log("[PostLib] Template restaurado (preprocess com erro).");
+                    Debug.Log("[PostLib] Template restaurado após erro no preprocess.");
                 }
 
                 if (!string.IsNullOrEmpty(_externalTempDir) && Directory.Exists(_externalTempDir))
@@ -303,7 +352,7 @@ namespace PostLib.Editor
 
                     Directory.CreateDirectory(Path.GetDirectoryName(SourceDir));
                     Directory.Move(_externalTempDir, SourceDir);
-                    Debug.Log("[PostLib] Pasta Source/ restaurada (preprocess com erro).");
+                    Debug.Log("[PostLib] Pasta Source/ restaurada após erro no preprocess.");
                 }
             }
             catch (Exception ex)
