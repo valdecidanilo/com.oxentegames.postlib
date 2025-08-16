@@ -110,6 +110,7 @@
         progressBarFull.style.width = 100 * progress + "%";
       }).then((unityInstance) => {
         loadingBar.style.display = "none";
+        window.unityInstance = unityInstance;
         unityInstance.SendMessage("LoaderSettings", "ReceivedRegulation", window.regulation);
       }).catch((message) => {
         alert(message);
