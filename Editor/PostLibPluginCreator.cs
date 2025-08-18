@@ -12,28 +12,15 @@ namespace PostLib.Editor
         private const string PluginUserAgentPath = "Assets/Plugins/WebGL/UserAgent.jslib";
         private const string PluginSource = @"
 mergeInto(LibraryManager.library, {
-    function getUnity() {
-      return (typeof globalThis !== 'undefined' && globalThis.unityInstance)
-          || (typeof window !== 'undefined' && window.unityInstance)
-          || (typeof self !== 'undefined' && self.unityInstance)
-          || null;
-    }
-
+    JS_Receive: function () {
     window.addEventListener('message', function (e) {
-      if (e?.data?.internal === true) return;
-
-      console.log('[PNP -> PostLib]: ', e);
-
-      try {
-        const u = getUnity();
-        if (u && typeof u.SendMessage === 'function') {
-          u.SendMessage('PostBridge', 'OnReceive', JSON.stringify(e.data));
-        } else {
-          console.error('Unity instance não disponível ainda (unityInstance não setado ou sem SendMessage).');
-        }
-      } catch (error) {
-        console.error('Erro ao enviar mensagem para Unity:', error);
-      }
+      if(e.data.internal === true) return;
+        console.log('[PNP -> PostLib]: ', e);
+        window.unityInstance.SendMessage(
+          'PostBridge', 
+          'OnReceive', 
+          JSON.stringify(e.data)
+        );
     });
     },
     JS_Send: function (ptr) {
