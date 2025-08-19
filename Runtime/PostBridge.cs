@@ -34,7 +34,7 @@ namespace PostLib
         public void OnReceive(string json)
         {
             Debug.Log($"[PostLib] 📨 OnReceive chamado com: {json}");
-            
+            json = UnwrapIfQuoted(json);
             if (string.IsNullOrEmpty(json))
             {
                 Debug.LogWarning("[PostLib] ⚠️ JSON recebido está vazio!");
@@ -68,6 +68,24 @@ namespace PostLib
 #else
             Debug.Log("[PostLib] ℹ️ Editor mode - JS_Send() simulado");
 #endif
+        }
+        private static string UnwrapIfQuoted(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return json;
+            json = json.Trim();
+
+            if (json.Length >= 2 && json[0] == '"' && json[json.Length - 1] == '"')
+            {
+                try
+                {
+                    var inner = JsonConvert.DeserializeObject<string>(json);
+                    if (!string.IsNullOrWhiteSpace(inner)) return inner;
+                }
+                catch {
+
+                }
+            }
+            return json;
         }
     }
 }

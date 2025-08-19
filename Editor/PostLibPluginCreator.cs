@@ -16,11 +16,9 @@ mergeInto(LibraryManager.library, {
     window.addEventListener('message', function (e) {
       if(e.data.internal === true) return;
         console.log('[PNP -> PostLib]: ', e);
-        window.unityInstance.SendMessage(
-          'PostBridge', 
-          'OnReceive', 
-          JSON.stringify(e.data)
-        );
+        const payload = typeof e.data === 'string' ? e.data : JSON.stringify(e.data);
+        console.log('[PNP -> PostLib]: ', payload);
+        window.unityInstance.SendMessage('PostBridge', 'OnReceive', payload);
     });
     },
     JS_Send: function (ptr) {
