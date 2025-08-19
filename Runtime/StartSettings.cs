@@ -12,6 +12,8 @@ namespace PostLib
         
         [SerializeField] private Sprite defaultLogo;
         [SerializeField] private Sprite businessLogo;
+        public Action<RegulationType> OnRegulationCloseAnything;
+        
 #if UNITY_EDITOR
         private void Awake()
         {
@@ -36,6 +38,7 @@ namespace PostLib
                 ? defaultLogo 
                 : businessLogo;
             descriptionLoader.enabled = regulation != RegulationType.brazilian;
+            OnRegulationCloseAnything?.Invoke(regulation);
         }
     }
     
