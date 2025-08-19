@@ -25,33 +25,7 @@ mergeInto(LibraryManager.library, {
     },
     JS_Send: function (ptr) {
       var jsonStr = UTF8ToString(ptr);
-      if (typeof console !== 'undefined' && console.log) console.log('[PostLib] raw JSON:', jsonStr);
-
-      var data;
-      try {
-        data = JSON.parse(jsonStr);
-      } catch (ex) {
-        if (typeof console !== 'undefined' && console.error) console.error('[PostLib] JSON inválido', ex);
-        return;
-      }
-
-      var isArray = (typeof Array.isArray === 'function')
-        ? Array.isArray(data)
-        : Object.prototype.toString.call(data) === '[object Array]';
-
-      var msg;
-      if (data && typeof data === 'object' && !isArray) {
-        data.internal = true;
-        msg = data;
-      } else {
-        msg = { payload: data, internal: true };
-      }
-
-      try {
-        window.parent.postMessage(msg, '*');
-      } catch (err) {
-        if (typeof console !== 'undefined' && console.error) console.error('[PostLib] postMessage falhou:', err);
-      }
+      window.parent.postMessage(JSON.parse(jsonStr), '*');
     }
 });
 ";
