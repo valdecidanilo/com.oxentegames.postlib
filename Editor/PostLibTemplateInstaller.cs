@@ -71,7 +71,7 @@ namespace PostLib.Editor
 
         private static void DirectoryCopy(string sourceDir, string destDir, bool copySubDirs)
         {
-            if(!CanUpdateVersion()) return;
+            //if(!CanUpdateVersion()) return;
 
             var dir = new DirectoryInfo(sourceDir);
             if (!dir.Exists) return;
@@ -97,7 +97,7 @@ namespace PostLib.Editor
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
             
             AssetDatabase.Refresh();
-            Debug.Log($"[PostLib] WebGL template copiado para: {destDir}");
+            Debug.Log($"[PostLib] WebGL template atualizado");
         }
         public static bool CanUpdateVersion()
         {
@@ -114,7 +114,7 @@ namespace PostLib.Editor
             int comparison = CompareNumericVersion(localText, remoteText);
             if (comparison < 0)
             {
-                Debug.Log($"[PostLib] Template desatualizado! Local: {localText}, Remoto: {remoteText}");
+                Debug.Log($"[PostLib] Template desatualizado! Atualizando template...");
                 return true;
             }
             else if (comparison == 0)
@@ -124,7 +124,6 @@ namespace PostLib.Editor
             }
             else
             {
-                Debug.Log($"[PostLib] Local ({localText}) é mais recente que o remoto ({remoteText}).");
                 return false;
             }
         }
