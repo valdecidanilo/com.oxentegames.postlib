@@ -3,7 +3,7 @@
     return urlParams.get(name);
 }
 
-const regulation = (getURLParameter("regulation") || "brazilian").toLowerCase();
+const regulation = (getURLParameter("regulation") || "asian").toLowerCase();
 
 if (regulation === "brazilian") {
     window.logoImg.src = "TemplateData/logo_business.png";
