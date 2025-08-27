@@ -13,7 +13,7 @@ namespace PostLib
         [SerializeField] private Sprite defaultLogo;
         [SerializeField] private Sprite businessLogo;
 
-        public static RegulationType CurrentRegulation {get; private set;};
+        public static RegulationType CurrentRegulation { get; private set; }
 
         public static Action<RegulationType> OnRegulationCloseAnything;
         
