@@ -12,6 +12,9 @@ namespace PostLib
         
         [SerializeField] private Sprite defaultLogo;
         [SerializeField] private Sprite businessLogo;
+
+        public static RegulationType CurrentRegulation {get; private set;};
+
         public static Action<RegulationType> OnRegulationCloseAnything;
         
 #if UNITY_EDITOR
@@ -30,9 +33,11 @@ namespace PostLib
                 Debug.LogWarning("Regulation inválido: " + regulation);
                 Setup(RegulationType.asian);
             }
+            CurrentRegulation = parsed;
         }
         private void Setup(RegulationType regulation)
         {
+            
             logoLoader.color = Color.white;
             logoLoader.sprite = regulation.Equals(RegulationType.brazilian) 
                 ? defaultLogo 
