@@ -12,7 +12,7 @@ namespace PostLib
         
         [SerializeField] private Sprite defaultLogo;
         [SerializeField] private Sprite businessLogo;
-        public Action<RegulationType> OnRegulationCloseAnything;
+        public static Action<RegulationType> OnRegulationCloseAnything;
         
 #if UNITY_EDITOR
         private void Awake()
