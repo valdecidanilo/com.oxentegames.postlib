@@ -1,20 +1,34 @@
-<!DOCTYPE html>
-<html lang="en-us">
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>{{{ PRODUCT_NAME }}}</title>
-
-  <link rel="stylesheet" href="TemplateData/style.css" />
-  <!-- DEV_TOOLS_START --
-  <link rel="stylesheet" href="Source/dev-tools.css" />
-  -- DEV_TOOLS_END -->
-  <link rel="shortcut icon" href="Source/favicon.ico" />
-
-  <style>
-    #unity-logo, #production-name { visibility: hidden; }
-  </style>
+<!DOCTYPE html> 
+<html lang="en-us"> 
+<head> 
+  <meta charset="utf-8" /> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" /> 
+  <title>{{{ PRODUCT_NAME }}}</title> 
+ 
+  <link rel="stylesheet" href="TemplateData/style.css" /> 
+  <link rel="shortcut icon" href="Source/favicon.ico" /> 
+  <style> 
+    /* Fundo preto imediato */ 
+    body {  
+      background-color: #000000 !important;  
+    } 
+    /* Logo e texto inicialmente ocultos */ 
+    #unity-logo, #production-name {  
+      visibility: hidden;  
+      opacity: 0; 
+      transition: opacity 0.3s ease; 
+    } 
+    /* Classe para mostrar após processamento */ 
+    .logo-ready { 
+      visibility: visible !important; 
+      opacity: 1 !important; 
+    } 
+  </style> 
+  <!-- DEV_TOOLS_START --> 
+  <link rel="stylesheet" href="Source/dev-tools.css"> 
+  <script src="Source/dev-tools.js"></script> 
+  <!-- DEV_TOOLS_END --> 
 </head>
 <body>
 <!-- DEV_TOOLS_START --
@@ -46,80 +60,79 @@
     </div>
   </div>
 -- DEV_TOOLS_END -->
-  <div id="unity-container">
-    <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}} tabindex="-1"></canvas>
-    <div id="overlay-content">
-      <div id="unity-loading-bar">
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <img id="unity-logo" src="TemplateData/logo_business.png" alt="Logo" />
-      <div id="production-name">A GameName Production</div>
-    </div>
-  </div>
-  <script>
-    window.logoImg = document.getElementById("unity-logo");
-    window.productionText = document.getElementById("production-name");
-  </script>
-  <script src="TemplateData/url-search-params.js"></script>
-<!-- POSTLIB_START -->
-  <script src="TemplateData/postlib.js"></script>
-<!-- POSTLIB_END -->
-<!-- DEV_TOOLS_START 
-  <script src="Source/dev-tools.js"></script>
--- DEV_TOOLS_END -->
-  <script>
-    const canvas = document.getElementById("unity-canvas");
-    const loadingBar = document.getElementById("overlay-content");
-    const progressBarFull = document.getElementById("unity-progress-bar-full");
-
-    const buildUrl = "Build";
-    const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
-    const config = {
-      dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}",
-      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}",
-      #if USE_THREADS
-      workerUrl: buildUrl + "/{{{ WORKER_FILENAME }}}",
-      #endif
-      #if USE_WASM
-      codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}",
-      #endif
-      #if MEMORY_FILENAME
-      memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}",
-      #endif
-      #if SYMBOLS_FILENAME
-      symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}",
-      #endif
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
-    productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
-    productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
-    showBanner: null,
-    };
-
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-      canvas.className = "unity-mobile";
-      config.devicePixelRatio = 2;
-    } else {
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
-    }
-
-    const script = document.createElement("script");
-    script.src = loaderUrl;
-    script.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
-        progressBarFull.style.width = 100 * progress + "%";
-      }).then((unityInstance) => {
-        loadingBar.style.display = "none";
-        window.unityInstance = unityInstance;
-        unityInstance.SendMessage("LoaderSettings", "ReceivedRegulation", window.regulation);
-      }).catch((message) => {
-        alert(message);
-      });
-    };
-    document.body.appendChild(script);
-  </script>
-  </body>
+    <div id="unity-container"> 
+    <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}}></canvas> 
+    <div id="overlay-content"> 
+      <div id="unity-loading-bar"> 
+        <div id="unity-progress-bar-empty"> 
+          <div id="unity-progress-bar-full"></div> 
+        </div> 
+      </div> 
+      <img id="unity-logo" src="TemplateData/logo_business.png" alt="Logo" /> 
+      <div id="production-name">An OPA Production</div> 
+    </div> 
+  </div> 
+  <script src="TemplateData/url-search-params.js"></script> 
+  <script src="TemplateData/postlib.js"></script> 
+  <script> 
+    
+    const canvas = document.getElementById("unity-canvas"); 
+    const loadingBar = document.getElementById("overlay-content"); 
+    const progressBarFull = document.getElementById("unity-progress-bar-full"); 
+ 
+    const buildUrl = "Build"; 
+    const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}"; 
+    const config = { 
+      dataUrl: buildUrl + "/{{{ DATA_FILENAME }}}", 
+      frameworkUrl: buildUrl + "/{{{ FRAMEWORK_FILENAME }}}", 
+      #if USE_THREADS 
+      workerUrl: buildUrl + "/{{{ WORKER_FILENAME }}}", 
+      #endif 
+      #if USE_WASM 
+      codeUrl: buildUrl + "/{{{ CODE_FILENAME }}}", 
+      #endif 
+      #if MEMORY_FILENAME 
+      memoryUrl: buildUrl + "/{{{ MEMORY_FILENAME }}}", 
+      #endif 
+      #if SYMBOLS_FILENAME 
+      symbolsUrl: buildUrl + "/{{{ SYMBOLS_FILENAME }}}", 
+      #endif 
+      streamingAssetsUrl: "StreamingAssets", 
+      companyName: {{{ JSON.stringify(COMPANY_NAME) }}}, 
+      productName: {{{ JSON.stringify(PRODUCT_NAME) }}}, 
+      productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}}, 
+      showBanner: null, 
+    }; 
+ 
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) { 
+      canvas.className = "unity-mobile"; 
+      config.devicePixelRatio = 2; 
+    } else { 
+      canvas.style.width = "100%"; 
+      canvas.style.height = "100%"; 
+    } 
+ 
+    const script = document.createElement("script"); 
+    script.src = loaderUrl; 
+    script.onload = () => { 
+      createUnityInstance(canvas, config, (progress) => { 
+        progressBarFull.style.width = 100 * progress + "%"; 
+      }).then((unityInstance) => { 
+        loadingBar.style.display = "none"; 
+        window.unityInstance = unityInstance; 
+        unityInstance.SendMessage("LoaderSettings", "ReceivedRegulation", window.regulation); 
+      }).catch((message) => { 
+        alert(message); 
+      }); 
+    }; 
+    document.body.appendChild(script); 
+ 
+    // Service Worker 
+    window.addEventListener("load", function () { 
+      if ("serviceWorker" in navigator) { 
+        navigator.serviceWorker.register("ServiceWorker.js"); 
+      } 
+    }); 
+  </script> 
+</body> 
 </html>
