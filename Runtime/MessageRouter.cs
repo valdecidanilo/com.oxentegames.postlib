@@ -29,8 +29,8 @@ namespace PostLib
                 Version  = "1.0.0",
                 Features = SupportedFeatures.ToArray()
             };
-            
-            Debug.Log($"[PostLib] 📤 Features suportadas: {string.Join(", ", SupportedFeatures)}");
+            //Não remover este log a baixo, se não version nao aparece.
+            Debug.Log($"[PostLib] 📤 Features suportadas: {string.Join(", ", SupportedFeatures)} - version: {msg.Version}");
             PostBridge.Send(JsonConvert.SerializeObject(msg));
         }
         
