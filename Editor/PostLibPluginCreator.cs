@@ -24,13 +24,6 @@ mergeInto(LibraryManager.library, {
     JS_Send: function (ptr) {
       var jsonStr = UTF8ToString(ptr);
       window.parent.postMessage(JSON.parse(jsonStr), '*');
-    },
-    WebGL_NotifyReady: function () {
-      if (typeof window.OnUnityGameReady === 'function') {
-        window.OnUnityGameReady();
-      } else {
-        console.warn('[WebGL] OnUnityGameReady não existe ainda.');
-      }
     }
 });
 ";
