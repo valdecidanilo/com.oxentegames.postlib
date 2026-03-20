@@ -97,7 +97,7 @@ namespace PostLib.Editor
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
             
             AssetDatabase.Refresh();
-            Debug.Log($"[PostLib] WebGL template atualizado");
+            //Debug.Log($"[PostLib] WebGL template atualizado");
         }
         public static bool CanUpdateVersion()
         {
@@ -119,7 +119,7 @@ namespace PostLib.Editor
             }
             else if (comparison == 0)
             {
-                Debug.Log($"[PostLib] Você já está na última versão ({localText}).");
+                //Debug.Log($"[PostLib] Você já está na última versão ({localText}).");
                 return false;
             }
             else

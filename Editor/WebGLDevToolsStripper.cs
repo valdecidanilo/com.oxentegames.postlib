@@ -33,10 +33,10 @@ namespace PostLib.Editor
             // Detecção melhorada de build de desenvolvimento
             bool isDevBuild = IsDevBuild(report);
             
-            Debug.Log($"[PostLib] Platform: {report.summary.platform}");
+            /*Debug.Log($"[PostLib] Platform: {report.summary.platform}");
             Debug.Log($"[PostLib] BuildOptions: {report.summary.options}");
             Debug.Log($"[PostLib] EditorUserBuildSettings.development: {EditorUserBuildSettings.development}");
-            Debug.Log($"[PostLib] Detected as DEV BUILD: {isDevBuild}");
+            Debug.Log($"[PostLib] Detected as DEV BUILD: {isDevBuild}");*/
 
             var settings = PostLibSettings.Instance;
             if (settings == null) 
@@ -47,7 +47,7 @@ namespace PostLib.Editor
             
             if (!File.Exists(TemplatePath)) 
             { 
-                Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); 
+                //Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); 
                 return; 
             }
 
@@ -116,10 +116,10 @@ namespace PostLib.Editor
             #endif
             
             // Log detalhado para debug
-            Debug.Log($"[PostLib] Development Detection:");
+           /* Debug.Log($"[PostLib] Development Detection:");
             Debug.Log($"  - BuildOptions.Development flag: {hasDevelopmentFlag}");
             Debug.Log($"  - EditorUserBuildSettings.development: {editorDevSetting}");
-            Debug.Log($"  - WebGL Platform DevelopmentBuild: {webglDevMode}");
+            Debug.Log($"  - WebGL Platform DevelopmentBuild: {webglDevMode}");*/
             
             // É build de desenvolvimento se qualquer uma das condições for verdadeira
             return hasDevelopmentFlag || editorDevSetting || webglDevMode;
