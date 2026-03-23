@@ -7,7 +7,7 @@
   <title>{{{ PRODUCT_NAME }}}</title> 
  
   <link rel="stylesheet" href="TemplateData/style.css" /> 
-  <link rel="shortcut icon" href="Source/favicon.ico" /> 
+  <link rel="shortcut icon" href="TemplateData/favicon.ico" /> 
   <style> 
     /* Fundo preto imediato */ 
     body {  
@@ -24,42 +24,10 @@
       visibility: visible !important; 
       opacity: 1 !important; 
     } 
-  </style> 
-  <!-- DEV_TOOLS_START --> 
-  <link rel="stylesheet" href="Source/dev-tools.css"> 
-  <script src="Source/dev-tools.js"></script> 
-  <!-- DEV_TOOLS_END --> 
+  </style>
 </head>
 <body>
-<!-- DEV_TOOLS_START --
-  <button id="sidebarToggle">☰ Painel PostMessage</button>
 
-  <div id="sidebar">
-    <div class="menu-section">
-      <h3>📤 Enviar Mensagem</h3>
-      <textarea id="postMessageJson" rows="8">{
-  "_type": "ucip.pause.w2gPauseCommand",
-  "pause": true
-}</textarea>
-      <button onclick="sendCustomMessage()">Enviar postMessage</button>
-    </div>
-    <div class="menu-section">
-      <h3>🎮 Controles de Jogo</h3>
-      <button id="pauseBtn" onclick="togglePause()">⏸️ Pause</button>
-      <button id="autoBtn" onclick="interruptAutoplay()">⏹️ Parar Autoplay</button>
-    </div>
-    <div class="menu-section">
-      <h3>🖥️ Resolução Canvas</h3>
-      <select onchange="changeResolution(this.value)">
-        <option value="auto">Auto (100%)</option>
-        <option value="1920x1080">1920x1080</option>
-        <option value="1280x720">1280x720</option>
-        <option value="800x600">800x600</option>
-        <option value="360x640">Mobile Portrait</option>
-      </select>
-    </div>
-  </div>
--- DEV_TOOLS_END -->
     <div id="unity-container"> 
     <canvas id="unity-canvas" width={{{ WIDTH }}} height={{{ HEIGHT }}}></canvas> 
     <div id="overlay-content"> 
