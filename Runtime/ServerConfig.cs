@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Postlib
+namespace PostLib
 {
     [CreateAssetMenu(menuName = "Server Config")]
     public class ServerConfig : ScriptableObject
