@@ -70,6 +70,12 @@ namespace PostLib
             Debug.Log("[PostLib] Editor mode - JS_Send() simulado");
 #endif
         }
+        public static void NotifyGameReady()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            Unity_GameReady();
+#endif
+        }
         private static string UnwrapIfQuoted(string json)
         {
             if (string.IsNullOrWhiteSpace(json)) return json;
