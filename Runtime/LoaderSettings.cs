@@ -39,9 +39,17 @@ namespace PostLib
             OnRegulationCloseAnything?.Invoke(regulation);
         }
         public virtual void OnStartClicked(string value) { }
+        public virtual void ApplyServerConfig(string json)
+        {
+            var payload = JsonUtility.FromJson<ServerConfigPayload>(json);
+
+            if (payload == null) return;
+            
+            serverConfig.SetServerConfig(payload.version, payload.baseUrl, payload.gameName);
+        }
     }
     
-    [System.Serializable]
+    [Serializable]
     public enum RegulationType
     {
         brazilian,
