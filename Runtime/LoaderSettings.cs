@@ -13,6 +13,14 @@ namespace PostLib
         [SerializeField] private Sprite defaultLogo;
         [SerializeField] private Sprite businessLogo;
 
+        [Serializable] 
+        private class ServerConfigPayload
+        {
+            public string version;
+            public string baseUrl;
+            public string gameName;
+        }
+
         public static RegulationType CurrentRegulation { get; private set; }
 
         public static Action<RegulationType> OnRegulationCloseAnything;
