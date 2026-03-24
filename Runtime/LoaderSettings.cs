@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace PostLib
 {
-    public class StartSettings : MonoBehaviour
+    public class LoaderSettings : MonoBehaviour
     {
         [SerializeField] private Image logoLoader;
         [SerializeField] private TMP_Text descriptionLoader;
@@ -18,13 +18,13 @@ namespace PostLib
         public static Action<RegulationType> OnRegulationCloseAnything;
         
 #if UNITY_EDITOR
-        private void Awake()
+        private virtual void Awake()
         {
             ReceivedRegulation("brazilian");
         } 
 #endif
 
-        private void ReceivedRegulation(string regulation)
+        private virtual void ReceivedRegulation(string regulation)
         {
             if (Enum.TryParse(regulation, out RegulationType parsed))
                 Setup(parsed);
@@ -35,7 +35,7 @@ namespace PostLib
             }
             CurrentRegulation = parsed;
         }
-        private void Setup(RegulationType regulation)
+        private virtual void Setup(RegulationType regulation)
         {
             
             logoLoader.color = Color.white;
@@ -45,6 +45,7 @@ namespace PostLib
             descriptionLoader.enabled = regulation != RegulationType.brazilian;
             OnRegulationCloseAnything?.Invoke(regulation);
         }
+        public virtual void OnStartClicked(string value) { }
     }
     
     [System.Serializable]
