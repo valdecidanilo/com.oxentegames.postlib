@@ -7,12 +7,12 @@ namespace PostLib
 {
     public class LoaderSettings : MonoBehaviour
     {
+        [SerializeField] private ServerConfig serverConfig;
         [SerializeField] private Image logoLoader;
         [SerializeField] private TMP_Text descriptionLoader;
         
         [SerializeField] private Sprite defaultLogo;
         [SerializeField] private Sprite businessLogo;
-
         [Serializable] 
         private class ServerConfigPayload
         {
