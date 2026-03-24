@@ -15,15 +15,18 @@ mergeInto(LibraryManager.library, {
     JS_Receive: function () {
     window.addEventListener('message', function (e) {
       if(e.data.internal === true) return;
-        console.log('[PNP -> PostLib]: ', e);
         const payload = typeof e.data === 'string' ? e.data : JSON.stringify(e.data);
-        console.log('[PNP -> PostLib]: ', payload);
         window.unityInstance.SendMessage('PostBridge', 'OnReceive', payload);
     });
     },
     JS_Send: function (ptr) {
       var jsonStr = UTF8ToString(ptr);
       window.parent.postMessage(JSON.parse(jsonStr), '*');
+    },
+    Unity_GameReady: function () {
+      if (typeof window.OnUnityGameReady === 'function') {
+        window.OnUnityGameReady();
+      }
     }
 });
 ";
