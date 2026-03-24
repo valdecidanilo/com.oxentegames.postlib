@@ -16,13 +16,6 @@ namespace PostLib
         public static RegulationType CurrentRegulation { get; private set; }
 
         public static Action<RegulationType> OnRegulationCloseAnything;
-        
-#if UNITY_EDITOR
-        protected virtual void Awake()
-        {
-            ReceivedRegulation("brazilian");
-        } 
-#endif
 
         protected virtual void ReceivedRegulation(string regulation)
         {
