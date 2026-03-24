@@ -9,7 +9,7 @@ namespace PostLib
         // JS ↔ C# 
         [DllImport("__Internal")] private static extern void JS_Receive();
         [DllImport("__Internal")] private static extern void JS_Send(string json);
-        
+        [DllImport("__Internal")] private static extern void Unity_GameReady();
         private void Awake()
         {
             Debug.Log("[PostLib] Configurando bridge...");
