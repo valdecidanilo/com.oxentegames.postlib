@@ -18,13 +18,13 @@ namespace PostLib
         public static Action<RegulationType> OnRegulationCloseAnything;
         
 #if UNITY_EDITOR
-        private virtual void Awake()
+        public virtual void Awake()
         {
             ReceivedRegulation("brazilian");
         } 
 #endif
 
-        private virtual void ReceivedRegulation(string regulation)
+        public virtual void ReceivedRegulation(string regulation)
         {
             if (Enum.TryParse(regulation, out RegulationType parsed))
                 Setup(parsed);
@@ -35,7 +35,7 @@ namespace PostLib
             }
             CurrentRegulation = parsed;
         }
-        private virtual void Setup(RegulationType regulation)
+        public virtual void Setup(RegulationType regulation)
         {
             
             logoLoader.color = Color.white;
