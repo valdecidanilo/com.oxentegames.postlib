@@ -7,6 +7,7 @@ namespace PostLib
     {
         public string version = "v1";
         public string baseUrl = "http://localhost:8000";
+        public string roomId = "parent:nameId";
         public string gameName = "gameName";
 
         public virtual string URL => BuildUrl();
