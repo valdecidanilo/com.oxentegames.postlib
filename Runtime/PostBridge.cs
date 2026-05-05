@@ -10,6 +10,10 @@ namespace PostLib
         [DllImport("__Internal")] private static extern void JS_Receive();
         [DllImport("__Internal")] private static extern void JS_Send(string json);
         [DllImport("__Internal")] private static extern void Unity_GameReady();
+        [DllImport("__Internal")] private static extern void WebGLLoading_SetBootProgress(float progress);
+        [DllImport("__Internal")] private static extern void WebGLLoading_SetBootStatus(string status);
+        [DllImport("__Internal")] private static extern void WebGLLoading_SetBootProgressWithStatus(float progress, string status);
+        [DllImport("__Internal")] private static extern void WebGLLoading_Complete();
         private void Awake()
         {
             Debug.Log("[PostLib] Configurando bridge...");
@@ -74,6 +78,41 @@ namespace PostLib
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
             Unity_GameReady();
+#endif
+        }
+        public static void SetBootProgress(float progress)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLLoading_SetBootProgress(Mathf.Clamp01(progress));
+#else
+            Debug.Log($"[WebGLLoadingBridge] Boot progress: {progress:P0}");
+#endif
+        }
+
+        public static void SetBootProgress(float progress, string status)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLLoading_SetBootProgressWithStatus(Mathf.Clamp01(progress), status ?? string.Empty);
+#else
+            Debug.Log($"[WebGLLoadingBridge] Boot progress: {progress:P0} | {status}");
+#endif
+        }
+
+        public static void SetStatus(string status)
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLLoading_SetBootStatus(status ?? string.Empty);
+#else
+            Debug.Log($"[WebGLLoadingBridge] Status: {status}");
+#endif
+        }
+
+        public static void Complete()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLLoading_Complete();
+#else
+            Debug.Log("[WebGLLoadingBridge] Complete");
 #endif
         }
         private static string UnwrapIfQuoted(string json)
