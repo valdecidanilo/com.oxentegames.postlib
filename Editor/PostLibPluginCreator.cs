@@ -109,6 +109,47 @@ mergeInto(LibraryManager.library, {
        if (typeof window.WebGLLoading_HideOverlayForUnityPopup === 'function') {
          window.WebGLLoading_HideOverlayForUnityPopup();
        }
+    },
+    
+    WebGLClipboard_Copy: function (textPtr) {
+    var text = UTF8ToString(textPtr);
+
+    function fallbackCopy(value) {
+        var textarea = document.createElement('textarea');
+        textarea.value = value;
+
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '-9999px';
+        textarea.style.opacity = '0';
+
+        document.body.appendChild(textarea);
+
+        textarea.focus();
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+
+        try {
+          document.execCommand('copy');
+        } catch (e) {
+          console.warn('[WebClipboard] fallback copy failed:', e);
+        }
+
+        document.body.removeChild(textarea);
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).catch(function () {
+            fallbackCopy(text);
+          });
+        } else {
+          fallbackCopy(text);
+        }
+      } catch (e) {
+        fallbackCopy(text);
+      }
     }
 });
         ";
