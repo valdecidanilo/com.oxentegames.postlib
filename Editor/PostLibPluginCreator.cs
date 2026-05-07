@@ -104,7 +104,6 @@ mergeInto(LibraryManager.library, {
          }
        }
     },
-    ,
     
     WebGLLoading_HideOverlayForUnityPopup: function () {
        if (typeof window.WebGLLoading_HideOverlayForUnityPopup === 'function') {
