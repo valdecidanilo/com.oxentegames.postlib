@@ -15,6 +15,7 @@ namespace PostLib
         [DllImport("__Internal")] private static extern void WebGLLoading_SetBootProgressWithStatus(float progress, string status);
         [DllImport("__Internal")] private static extern void WebGLLoading_Complete();
         [DllImport("__Internal")] private static extern void WebGLLoading_HideOverlayForUnityPopup();
+        [DllImport("__Internal")] private static extern void WebGLClipboard_Copy(string text);
         private void Awake()
         {
             Debug.Log("[PostLib] Configurando bridge...");
@@ -136,11 +137,22 @@ namespace PostLib
         }
         public static void HideOverlayForUnityPopup()
         {
-        #if UNITY_WEBGL && !UNITY_EDITOR
+#if UNITY_WEBGL && !UNITY_EDITOR
             WebGLLoading_HideOverlayForUnityPopup();
-        #else
+#else
             Debug.Log("[WebGLLoadingBridge] Hide overlay for Unity popup");
-        #endif
+#endif
+        }
+        public static void Copy(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLClipboard_Copy(text);
+#else
+            GUIUtility.systemCopyBuffer = text;
+#endif
         }
     }
 }
