@@ -103,6 +103,13 @@ mergeInto(LibraryManager.library, {
            window.LoadingManager.complete();
          }
        }
+    },
+    ,
+    
+    WebGLLoading_HideOverlayForUnityPopup: function () {
+       if (typeof window.WebGLLoading_HideOverlayForUnityPopup === 'function') {
+         window.WebGLLoading_HideOverlayForUnityPopup();
+       }
     }
 });
         ";

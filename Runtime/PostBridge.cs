@@ -14,6 +14,7 @@ namespace PostLib
         [DllImport("__Internal")] private static extern void WebGLLoading_SetBootStatus(string status);
         [DllImport("__Internal")] private static extern void WebGLLoading_SetBootProgressWithStatus(float progress, string status);
         [DllImport("__Internal")] private static extern void WebGLLoading_Complete();
+        [DllImport("__Internal")] private static extern void WebGLLoading_HideOverlayForUnityPopup();
         private void Awake()
         {
             Debug.Log("[PostLib] Configurando bridge...");
@@ -132,6 +133,14 @@ namespace PostLib
                 }
             }
             return json;
+        }
+        public static void HideOverlayForUnityPopup()
+        {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLLoading_HideOverlayForUnityPopup();
+        #else
+            Debug.Log("[WebGLLoadingBridge] Hide overlay for Unity popup");
+        #endif
         }
     }
 }
