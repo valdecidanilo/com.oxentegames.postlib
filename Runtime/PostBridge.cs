@@ -143,7 +143,7 @@ namespace PostLib
             Debug.Log("[WebGLLoadingBridge] Hide overlay for Unity popup");
 #endif
         }
-        public static void Copy(string text)
+        public static void ClipboardCopy(string text)
         {
             if (string.IsNullOrWhiteSpace(text))
                 return;
