@@ -16,6 +16,7 @@ namespace PostLib
         [DllImport("__Internal")] private static extern void WebGLLoading_Complete();
         [DllImport("__Internal")] private static extern void WebGLLoading_HideOverlayForUnityPopup();
         [DllImport("__Internal")] private static extern void WebGLClipboard_Copy(string text);
+        [DllImport("__Internal")] private static extern void Unity_CloseLoadingOverlayImmediately();
         private void Awake()
         {
             Debug.Log("[PostLib] Configurando bridge...");
@@ -153,6 +154,21 @@ namespace PostLib
 #else
             GUIUtility.systemCopyBuffer = text;
 #endif
+        }
+        public static void CloseLoadingOverlayImmediately()
+        {
+        #if UNITY_WEBGL && !UNITY_EDITOR
+            try
+            {
+                Unity_CloseLoadingOverlayImmediately();
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[PostLib] Erro ao fechar overlay imediatamente: {ex.Message}");
+            }
+        #else
+            Debug.Log("[PostLib] Editor mode - CloseLoadingOverlayImmediately() simulado");
+        #endif
         }
     }
 }
