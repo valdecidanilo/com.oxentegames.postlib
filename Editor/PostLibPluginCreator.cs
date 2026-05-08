@@ -45,7 +45,11 @@ mergeInto(LibraryManager.library, {
             overlay.style.display = 'none';
         }
 
-        try { window.CoverManager?.remove(); } catch {}
+        try {
+            if (window.CoverManager && typeof window.CoverManager.remove === 'function') {
+                window.CoverManager.remove();
+            }
+        } catch (e) {}
     }
 });
 ";
