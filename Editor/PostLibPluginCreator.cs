@@ -28,6 +28,24 @@ mergeInto(LibraryManager.library, {
       if (typeof window.OnUnityGameReady === 'function') {
         window.OnUnityGameReady();
       }
+    },
+    Unity_CloseLoadingOverlayImmediately: function () {
+        if (typeof window.WebGLLoading_HideOverlayForUnityPopup === 'function') {
+            window.WebGLLoading_HideOverlayForUnityPopup();
+            return;
+        }
+
+        if (typeof window.hideWebGLLoadingOverlay === 'function') {
+            window.hideWebGLLoadingOverlay();
+            return;
+        }
+
+        var overlay = document.getElementById('overlay-content');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+
+        try { window.CoverManager?.remove(); } catch {}
     }
 });
 ";
