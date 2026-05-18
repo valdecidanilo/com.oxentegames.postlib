@@ -89,7 +89,9 @@ namespace PostLib.Editor
                                    extension.Equals(".txt", System.StringComparison.OrdinalIgnoreCase);
                 var destFile = Path.Combine(destDir, file.Name);
                 try { file.CopyTo(destFile, canOverride); }
-                catch { //Debug.LogWarning($"{file.Name} already exists"); }
+                catch { 
+                    //Debug.LogWarning($"{file.Name} already exists"); 
+                }
             }
 
             if (copySubDirs)
@@ -97,7 +99,7 @@ namespace PostLib.Editor
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
             
             AssetDatabase.Refresh();
-            ////Debug.Log($"[PostLib] WebGL template atualizado");
+            //Debug.Log($"[PostLib] WebGL template atualizado");
         }
         public static bool CanUpdateVersion()
         {
