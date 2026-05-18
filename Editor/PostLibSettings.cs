@@ -17,7 +17,7 @@ namespace PostLib.Editor
                     _instance = Resources.Load<PostLibSettings>("PostLibSettings");
                     if (_instance == null)
                     {
-                        Debug.LogError("[PostLib] PostLibSettings.asset não encontrado em Resources.");
+                        //Debug.LogError("[PostLib] PostLibSettings.asset não encontrado em Resources.");
                     }
                 }
                 return _instance;

@@ -19,33 +19,33 @@ namespace PostLib
         [DllImport("__Internal")] private static extern void Unity_CloseLoadingOverlayImmediately();
         private void Awake()
         {
-            Debug.Log("[PostLib] Configurando bridge...");
+            //Debug.Log("[PostLib] Configurando bridge...");
             
 #if !UNITY_EDITOR && UNITY_WEBGL
             try
             {
                 JS_Receive();
-                Debug.Log("[PostLib] chamado com sucesso");
+                //Debug.Log("[PostLib] chamado com sucesso");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] Erro ao chamar JS_Receive: {ex.Message}");
+                //Debug.LogError($"[PostLib] Erro ao chamar JS_Receive: {ex.Message}");
             }
 #else
-            Debug.Log("[PostLib] Editor mode - JS_Receive() simulado");
+            //Debug.Log("[PostLib] Editor mode - JS_Receive() simulado");
 #endif
             
-            Debug.Log("[PostLib] Ativando window Listener JS.");
+            //Debug.Log("[PostLib] Ativando window Listener JS.");
             MessageRouter.SendInitialization();
         }
 
         public void OnReceive(string json)
         {
-            Debug.Log($"[PostLib] 📨 OnReceive chamado com: {json}");
+            //Debug.Log($"[PostLib] 📨 OnReceive chamado com: {json}");
             json = UnwrapIfQuoted(json);
             if (string.IsNullOrEmpty(json))
             {
-                Debug.LogWarning("[PostLib] JSON recebido está vazio!");
+                //Debug.LogWarning("[PostLib] JSON recebido está vazio!");
                 return;
             }
             
@@ -55,26 +55,26 @@ namespace PostLib
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] ❌ Erro em OnReceive: {ex.Message}\n{ex.StackTrace}");
+                //Debug.LogError($"[PostLib] ❌ Erro em OnReceive: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
         public static void Send(string json)
         {
-            Debug.Log($"[PostLib] 📤 Enviando: {json}");
+            //Debug.Log($"[PostLib] 📤 Enviando: {json}");
             
 #if !UNITY_EDITOR && UNITY_WEBGL
             try
             {
                 JS_Send(json);
-                Debug.Log("[PostLib] JS_Send() executado com sucesso");
+                //Debug.Log("[PostLib] JS_Send() executado com sucesso");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] Erro ao chamar JS_Send(): {ex.Message}");
+                //Debug.LogError($"[PostLib] Erro ao chamar JS_Send(): {ex.Message}");
             }
 #else
-            Debug.Log("[PostLib] Editor mode - JS_Send() simulado");
+            //Debug.Log("[PostLib] Editor mode - JS_Send() simulado");
 #endif
         }
         public static void NotifyGameReady()
@@ -88,7 +88,7 @@ namespace PostLib
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLLoading_SetBootProgress(Mathf.Clamp01(progress));
 #else
-            Debug.Log($"[WebGLLoadingBridge] Boot progress: {progress:P0}");
+            //Debug.Log($"[WebGLLoadingBridge] Boot progress: {progress:P0}");
 #endif
         }
 
@@ -97,7 +97,7 @@ namespace PostLib
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLLoading_SetBootProgressWithStatus(Mathf.Clamp01(progress), status ?? string.Empty);
 #else
-            Debug.Log($"[WebGLLoadingBridge] Boot progress: {progress:P0} | {status}");
+            //Debug.Log($"[WebGLLoadingBridge] Boot progress: {progress:P0} | {status}");
 #endif
         }
 
@@ -106,7 +106,7 @@ namespace PostLib
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLLoading_SetBootStatus(status ?? string.Empty);
 #else
-            Debug.Log($"[WebGLLoadingBridge] Status: {status}");
+            //Debug.Log($"[WebGLLoadingBridge] Status: {status}");
 #endif
         }
 
@@ -115,7 +115,7 @@ namespace PostLib
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLLoading_Complete();
 #else
-            Debug.Log("[WebGLLoadingBridge] Complete");
+            //Debug.Log("[WebGLLoadingBridge] Complete");
 #endif
         }
         private static string UnwrapIfQuoted(string json)
@@ -141,7 +141,7 @@ namespace PostLib
 #if UNITY_WEBGL && !UNITY_EDITOR
             WebGLLoading_HideOverlayForUnityPopup();
 #else
-            Debug.Log("[WebGLLoadingBridge] Hide overlay for Unity popup");
+            //Debug.Log("[WebGLLoadingBridge] Hide overlay for Unity popup");
 #endif
         }
         public static void ClipboardCopy(string text)
@@ -164,10 +164,10 @@ namespace PostLib
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] Erro ao fechar overlay imediatamente: {ex.Message}");
+                //Debug.LogError($"[PostLib] Erro ao fechar overlay imediatamente: {ex.Message}");
             }
         #else
-            Debug.Log("[PostLib] Editor mode - CloseLoadingOverlayImmediately() simulado");
+            //Debug.Log("[PostLib] Editor mode - CloseLoadingOverlayImmediately() simulado");
         #endif
         }
     }

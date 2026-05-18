@@ -17,17 +17,17 @@ namespace PostLib.Editor
             var settings = PostLibSettings.Instance;
             if (settings == null)
             {
-                Debug.LogWarning("[PostLib] PostLibSettings não encontrado.");
+                //Debug.LogWarning("[PostLib] PostLibSettings não encontrado.");
                 return;
             }
 
             if (!settings.enablePostLib)
             {
-                Debug.Log("[PostLib] PostLib desativado. Build seguirá sem alterar template, sem mover arquivos e sem gerar backup.");
+                //Debug.Log("[PostLib] PostLib desativado. Build seguirá sem alterar template, sem mover arquivos e sem gerar backup.");
                 return;
             }
 
-            Debug.Log("[PostLib] Build WebGL iniciada sem modificar index.html, sem mover Source/ e sem processar DEV_TOOLS.");
+            //Debug.Log("[PostLib] Build WebGL iniciada sem modificar index.html, sem mover Source/ e sem processar DEV_TOOLS.");
         }
 
         public void OnPostprocessBuild(BuildReport report)
@@ -35,7 +35,7 @@ namespace PostLib.Editor
             if (report.summary.platform != BuildTarget.WebGL)
                 return;
 
-            Debug.Log("[PostLib] Pós-build concluído sem restaurações, pois nenhum arquivo foi alterado.");
+            //Debug.Log("[PostLib] Pós-build concluído sem restaurações, pois nenhum arquivo foi alterado.");
         }
     }
 }

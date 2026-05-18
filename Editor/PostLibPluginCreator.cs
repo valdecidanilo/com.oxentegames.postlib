@@ -190,7 +190,7 @@ mergeInto(LibraryManager.library, {
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginSource);
-                Debug.Log("[PostLib] PostLib.jslib atualizado em: " + PluginPath);
+                //Debug.Log("[PostLib] PostLib.jslib atualizado em: " + PluginPath);
                 AssetDatabase.Refresh();
             }
         }
@@ -202,7 +202,7 @@ mergeInto(LibraryManager.library, {
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginUserAgent);
-                Debug.Log("[PostLib] UserAgent.jslib atualizado em: " + PluginUserAgentPath);
+                //Debug.Log("[PostLib] UserAgent.jslib atualizado em: " + PluginUserAgentPath);
                 AssetDatabase.Refresh();
             }
         }
@@ -214,7 +214,7 @@ mergeInto(LibraryManager.library, {
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginWebBridge);
-                Debug.Log("[PostLib] WebBridge.jslib atualizado em: " + PluginWebBridgePath);
+                //Debug.Log("[PostLib] WebBridge.jslib atualizado em: " + PluginWebBridgePath);
                 AssetDatabase.Refresh();
             }
         }

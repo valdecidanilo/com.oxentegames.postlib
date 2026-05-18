@@ -26,7 +26,7 @@ namespace PostLib.Editor
             string packagePath = GetPackageRoot();
             if (string.IsNullOrEmpty(packagePath))
             {
-                Debug.LogWarning("[PostLib] Não foi possível localizar o pacote PostLib.");
+                //Debug.LogWarning("[PostLib] Não foi possível localizar o pacote PostLib.");
                 return;
             }
 
@@ -35,7 +35,7 @@ namespace PostLib.Editor
 
             if (!Directory.Exists(src))
             {
-                Debug.LogWarning($"[PostLib] Template não encontrado em {src}");
+                //Debug.LogWarning($"[PostLib] Template não encontrado em {src}");
                 return;
             }
 
@@ -56,7 +56,7 @@ namespace PostLib.Editor
             {
                 var settings = ScriptableObject.CreateInstance<PostLibSettings>();
                 AssetDatabase.CreateAsset(settings, settingsAssetPath);
-                Debug.Log($"[PostLib] Asset de configuração criado: {settingsAssetPath}");
+                //Debug.Log($"[PostLib] Asset de configuração criado: {settingsAssetPath}");
             }
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -89,7 +89,7 @@ namespace PostLib.Editor
                                    extension.Equals(".txt", System.StringComparison.OrdinalIgnoreCase);
                 var destFile = Path.Combine(destDir, file.Name);
                 try { file.CopyTo(destFile, canOverride); }
-                catch { Debug.LogWarning($"{file.Name} already exists"); }
+                catch { //Debug.LogWarning($"{file.Name} already exists"); }
             }
 
             if (copySubDirs)
@@ -97,7 +97,7 @@ namespace PostLib.Editor
                     DirectoryCopy(sub.FullName, Path.Combine(destDir, sub.Name), true);
             
             AssetDatabase.Refresh();
-            //Debug.Log($"[PostLib] WebGL template atualizado");
+            ////Debug.Log($"[PostLib] WebGL template atualizado");
         }
         public static bool CanUpdateVersion()
         {
@@ -114,12 +114,12 @@ namespace PostLib.Editor
             int comparison = CompareNumericVersion(localText, remoteText);
             if (comparison < 0)
             {
-                Debug.Log($"[PostLib] Template desatualizado! Atualizando template...");
+                //Debug.Log($"[PostLib] Template desatualizado! Atualizando template...");
                 return true;
             }
             else if (comparison == 0)
             {
-                //Debug.Log($"[PostLib] Você já está na última versão ({localText}).");
+                ////Debug.Log($"[PostLib] Você já está na última versão ({localText}).");
                 return false;
             }
             else

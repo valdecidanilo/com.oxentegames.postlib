@@ -13,7 +13,7 @@ namespace PostLib.Editor
         {
             if (GameObject.Find("LoaderSettings") != null)
             {
-                Debug.LogWarning("[LoaderSettings] Já existe um objeto chamado 'LoaderSettings' na cena.");
+                //Debug.LogWarning("[LoaderSettings] Já existe um objeto chamado 'LoaderSettings' na cena.");
                 return;
             }
 
@@ -21,7 +21,7 @@ namespace PostLib.Editor
             var loaderScript = root.AddComponent<LoaderSettings>();
             Selection.activeGameObject = root;
 
-            Debug.Log("[LoaderSettings] Objeto criado na cena.");
+            //Debug.Log("[LoaderSettings] Objeto criado na cena.");
         }
     }
 }

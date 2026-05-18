@@ -14,7 +14,7 @@ namespace PostLib
         // Unity → JS 
         public static void SendInitialization()
         {
-            Debug.Log("[PostLib] 📤 Enviando inicialização...");
+            //Debug.Log("[PostLib] 📤 Enviando inicialização...");
             
             InitializeHandler initializeHandler = new();
             initializeHandler.AddHandler(messageHandler);
@@ -30,29 +30,29 @@ namespace PostLib
                 Features = SupportedFeatures.ToArray()
             };
             //Não remover este log a baixo, se não version nao aparece.
-            Debug.Log($"[PostLib] 📤 Features suportadas: {string.Join(", ", SupportedFeatures)} - version: {msg.Version}");
+            //Debug.Log($"[PostLib] 📤 Features suportadas: {string.Join(", ", SupportedFeatures)} - version: {msg.Version}");
             PostBridge.Send(JsonConvert.SerializeObject(msg));
         }
         
         // JS → Unity 
         public static void Route(string json)
         {
-            Debug.Log($"[PostLib] 📥 Roteando mensagem: {json}");
+            //Debug.Log($"[PostLib] 📥 Roteando mensagem: {json}");
             
             try
             {
                 var any = JsonConvert.DeserializeObject<BaseMessage>(json);
                 if (any == null)
                 {
-                    Debug.LogError("[PostLib] ❌ Falha ao deserializar mensagem!");
+                    //Debug.LogError("[PostLib] ❌ Falha ao deserializar mensagem!");
                     return;
                 }
                 
-                Debug.Log($"[PostLib] 🎯 Tipo da mensagem: {any.rawType}");
+                //Debug.Log($"[PostLib] 🎯 Tipo da mensagem: {any.rawType}");
                 
                 if (messageHandler == null)
                 {
-                    Debug.LogError("[PostLib] ❌ messageHandler é NULL! Handlers não foram inicializados.");
+                    //Debug.LogError("[PostLib] ❌ messageHandler é NULL! Handlers não foram inicializados.");
                     return;
                 }
                 
@@ -61,18 +61,18 @@ namespace PostLib
                 
                 if (!mapped)
                 {
-                    Debug.LogWarning($"[PostLib] ⚠️ Tipo não mapeado: {any.rawType}");
-                    Debug.LogWarning($"[PostLib] ⚠️ JSON completo: {json}");
+                    //Debug.LogWarning($"[PostLib] ⚠️ Tipo não mapeado: {any.rawType}");
+                    //Debug.LogWarning($"[PostLib] ⚠️ JSON completo: {json}");
                 }
                 else
                 {
-                    Debug.Log($"[PostLib] ✅ Mensagem {any.rawType} processada com sucesso!");
+                    //Debug.Log($"[PostLib] ✅ Mensagem {any.rawType} processada com sucesso!");
                 }
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] ❌ Erro no roteamento: {ex.Message}\n{ex.StackTrace}");
-                Debug.LogError($"[PostLib] ❌ JSON problemático: {json}");
+                //Debug.LogError($"[PostLib] ❌ Erro no roteamento: {ex.Message}\n{ex.StackTrace}");
+                //Debug.LogError($"[PostLib] ❌ JSON problemático: {json}");
             }
         }
     }
@@ -81,13 +81,13 @@ namespace PostLib
     {
         public override void HandleMessage(string type, string message, ref bool catchMessage)
         {
-            Debug.Log($"[PostLib] 🔄 InitializeHandler processando: {type}");
+            //Debug.Log($"[PostLib] 🔄 InitializeHandler processando: {type}");
             
             switch (type)
             {
                 case "ucip.basic.w2gInitializationResponse":
                     var init = JsonConvert.DeserializeObject<InitializationMessage>(message);
-                    Debug.Log($"[PostLib] 🎉 Initialization features: {string.Join(", ", init.Features)}");
+                    //Debug.Log($"[PostLib] 🎉 Initialization features: {string.Join(", ", init.Features)}");
                     catchMessage = true;
                     Initialize(init);
                     break;
