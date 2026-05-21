@@ -64,9 +64,9 @@ window.UnityLoader = (function () {
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.has("useUnityCache")) return false;
-      return isSafariLikeMemoryTarget() || params.has("noUnityCache");
+      return params.has("noUnityCache");
     } catch {
-      return isSafariLikeMemoryTarget();
+      return false;
     }
   }
 
@@ -117,21 +117,17 @@ window.UnityLoader = (function () {
   async function prepareSafariStorageForUnity() {
     const forceCleanup = shouldForceStorageCleanup();
 
-    if (!forceCleanup && !isSafariLikeMemoryTarget()) return;
+    if (!forceCleanup) return;
 
     try {
-      if (!forceCleanup && sessionStorage.getItem("unitySafariStorageCleaned") === "1") return;
+      if (sessionStorage.getItem("unitySafariStorageCleaned") === "1") return;
     } catch {}
+
+    try { sessionStorage.setItem("unitySafariStorageCleaned", "1"); } catch {}
 
     const estimate = await getStorageEstimate();
     const usage = estimate?.usage ?? 0;
     const quota = estimate?.quota ?? 0;
-    const usageRatio = quota > 0 ? usage / quota : 0;
-    const shouldCleanup = forceCleanup || usage >= SAFARI_STORAGE_CLEANUP_BYTES || usageRatio >= SAFARI_STORAGE_CLEANUP_RATIO;
-
-    if (!shouldCleanup) return;
-
-    try { sessionStorage.setItem("unitySafariStorageCleaned", "1"); } catch {}
 
     const deletedCaches = await clearSameOriginCacheStorage();
     const deletedDatabases = await clearSameOriginIndexedDB();
@@ -270,7 +266,12 @@ window.UnityLoader = (function () {
       document.head.appendChild(meta);
 
       canvas.className = "unity-mobile";
-      config.devicePixelRatio = 2;
+      // Limita DPR a 1 em mobile para evitar framebuffers 4x maiores em devices
+      // com pouca RAM (ex: iPhone 8 com limite ~300MB no WebGL do Safari).
+      // Use ?highDPI na URL para forçar DPR nativo quando necessário.
+      const params = new URLSearchParams(window.location.search);
+      const nativeDPR = window.devicePixelRatio || 1;
+      config.devicePixelRatio = params.has("highDPI") ? Math.min(nativeDPR, 2) : 1;
     } else {
       canvas.style.width = "100%";
       canvas.style.height = "100%";
