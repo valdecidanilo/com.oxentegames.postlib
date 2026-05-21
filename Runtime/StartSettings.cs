@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,7 +30,7 @@ namespace PostLib
                 Setup(parsed);
             else
             {
-                Debug.LogWarning("Regulation inválido: " + regulation);
+                // Debug.LogWarning("Regulation inválido: " + regulation);
                 Setup(RegulationType.asian);
             }
             CurrentRegulation = parsed;

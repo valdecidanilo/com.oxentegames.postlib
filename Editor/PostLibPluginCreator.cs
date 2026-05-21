@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
 using UnityEngine;
 
@@ -66,7 +66,7 @@ mergeInto(LibraryManager.library, {
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginSource);
-                Debug.Log("[PostLib] PostLib.jslib atualizado em: " + PluginPath);
+                // Debug.Log("[PostLib] PostLib.jslib atualizado em: " + PluginPath);
                 AssetDatabase.Refresh();
             }
         }
@@ -78,7 +78,7 @@ mergeInto(LibraryManager.library, {
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginUserAgent);
-                Debug.Log("[PostLib] UserAgent.jslib atualizado em: " + PluginUserAgentPath);
+                // Debug.Log("[PostLib] UserAgent.jslib atualizado em: " + PluginUserAgentPath);
                 AssetDatabase.Refresh();
             }
         }

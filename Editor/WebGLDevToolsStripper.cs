@@ -33,21 +33,21 @@ namespace PostLib.Editor
             // Detecção melhorada de build de desenvolvimento
             bool isDevBuild = IsDevBuild(report);
             
-            Debug.Log($"[PostLib] Platform: {report.summary.platform}");
-            Debug.Log($"[PostLib] BuildOptions: {report.summary.options}");
-            Debug.Log($"[PostLib] EditorUserBuildSettings.development: {EditorUserBuildSettings.development}");
-            Debug.Log($"[PostLib] Detected as DEV BUILD: {isDevBuild}");
+            // Debug.Log($"[PostLib] Platform: {report.summary.platform}");
+            // Debug.Log($"[PostLib] BuildOptions: {report.summary.options}");
+            // Debug.Log($"[PostLib] EditorUserBuildSettings.development: {EditorUserBuildSettings.development}");
+            // Debug.Log($"[PostLib] Detected as DEV BUILD: {isDevBuild}");
 
             var settings = PostLibSettings.Instance;
             if (settings == null) 
             { 
-                Debug.LogWarning("[PostLib] Não foi possível carregar PostLibSettings.Instance."); 
+                // Debug.LogWarning("[PostLib] Não foi possível carregar PostLibSettings.Instance."); 
                 return; 
             }
             
             if (!File.Exists(TemplatePath)) 
             { 
-                Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); 
+                // Debug.LogWarning($"[PostLib] index.html não encontrado em {TemplatePath}"); 
                 return; 
             }
 
@@ -65,7 +65,7 @@ namespace PostLib.Editor
                     html = StripPostLibRegion(html);
                     html = StripDevToolsRegion(html);
                     File.WriteAllText(TemplatePath, html);
-                    Debug.Log("[PostLib] PostLib desativado: removidos POSTLIB e DEV_TOOLS.");
+                    // Debug.Log("[PostLib] PostLib desativado: removidos POSTLIB e DEV_TOOLS.");
                     MoveSourceOut();
                     return;
                 }
@@ -76,24 +76,24 @@ namespace PostLib.Editor
                     html = RemoveCanvasTabIndex(html);
                     html = EnsureDevToolsBlock(html);
                     File.WriteAllText(TemplatePath, html);
-                    Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado, tabindex removido e Source/ mantida para a build.");
+                    // Debug.Log("[PostLib] Build DEV detectado: DEV_TOOLS preservado/ativado, tabindex removido e Source/ mantida para a build.");
                     // Source/ fica no lugar para ir na build de dev
                     return; // IMPORTANTE: não executar a lógica de release
                 }
                 else
                 {
                     // RELEASE BUILD → remover DEV_TOOLS; manter PostLib; mover Source/
-                    Debug.Log("[PostLib] Build RELEASE detectado: processando remoção de DEV_TOOLS...");
+                    // Debug.Log("[PostLib] Build RELEASE detectado: processando remoção de DEV_TOOLS...");
                     CleanUnityContainerPositionProps();
                     html = StripDevToolsRegion(html);
                     File.WriteAllText(TemplatePath, html);
-                    Debug.Log("[PostLib] Build RELEASE: DEV_TOOLS removido.");
+                    // Debug.Log("[PostLib] Build RELEASE: DEV_TOOLS removido.");
                     MoveSourceOut(); // Mover Source/ para NÃO ir na build de release
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[PostLib] Erro no Preprocess: {ex.Message}\n{ex.StackTrace}");
+                // Debug.LogError($"[PostLib] Erro no Preprocess: {ex.Message}\n{ex.StackTrace}");
                 TryRestoreTemplateImmediate();
             }
         }
@@ -116,10 +116,10 @@ namespace PostLib.Editor
             #endif
             
             // Log detalhado para debug
-            Debug.Log($"[PostLib] Development Detection:");
-            Debug.Log($"  - BuildOptions.Development flag: {hasDevelopmentFlag}");
-            Debug.Log($"  - EditorUserBuildSettings.development: {editorDevSetting}");
-            Debug.Log($"  - WebGL Platform DevelopmentBuild: {webglDevMode}");
+            // Debug.Log($"[PostLib] Development Detection:");
+            // Debug.Log($"  - BuildOptions.Development flag: {hasDevelopmentFlag}");
+            // Debug.Log($"  - EditorUserBuildSettings.development: {editorDevSetting}");
+            // Debug.Log($"  - WebGL Platform DevelopmentBuild: {webglDevMode}");
             
             // É build de desenvolvimento se qualquer uma das condições for verdadeira
             return hasDevelopmentFlag || editorDevSetting || webglDevMode;
@@ -131,7 +131,7 @@ namespace PostLib.Editor
                 return;
 
             bool isDevBuild = IsDevBuild(report);
-            Debug.Log($"[PostLib] Postprocess - Build type: {(isDevBuild ? "DEV" : "RELEASE")}");
+            // Debug.Log($"[PostLib] Postprocess - Build type: {(isDevBuild ? "DEV" : "RELEASE")}");
 
             // SEMPRE restaurar HTML original do backup
             if (!string.IsNullOrEmpty(_backupHtmlPath) && File.Exists(_backupHtmlPath))
@@ -140,16 +140,16 @@ namespace PostLib.Editor
                 {
                     File.Copy(_backupHtmlPath, TemplatePath, true);
                     File.Delete(_backupHtmlPath);
-                    Debug.Log("[PostLib] ✅ HTML original restaurado do backup. Template volta ao estado original.");
+                    // Debug.Log("[PostLib] ✅ HTML original restaurado do backup. Template volta ao estado original.");
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[PostLib] ❌ Falha ao restaurar template: {ex.Message}");
+                    // Debug.LogError($"[PostLib] ❌ Falha ao restaurar template: {ex.Message}");
                 }
             }
             else
             {
-                Debug.LogWarning("[PostLib] ⚠️ Backup não encontrado! Template pode ter ficado modificado.");
+                // Debug.LogWarning("[PostLib] ⚠️ Backup não encontrado! Template pode ter ficado modificado.");
             }
 
             // Restaurar pasta Source APENAS se foi uma release build (que a moveu)
@@ -162,27 +162,27 @@ namespace PostLib.Editor
 
                     Directory.CreateDirectory(Path.GetDirectoryName(SourceDir));
                     Directory.Move(_externalTempDir, SourceDir);
-                    Debug.Log("[PostLib] ✅ Pasta Source/ restaurada após build de release.");
+                    // Debug.Log("[PostLib] ✅ Pasta Source/ restaurada após build de release.");
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[PostLib] ❌ Falha ao restaurar pasta Source/: {ex.Message}");
+                    // Debug.LogError($"[PostLib] ❌ Falha ao restaurar pasta Source/: {ex.Message}");
                 }
             }
             else if (isDevBuild)
             {
-                Debug.Log("[PostLib] ℹ️ Build DEV: pasta Source/ permaneceu no template (foi incluída na build).");
+                // Debug.Log("[PostLib] ℹ️ Build DEV: pasta Source/ permaneceu no template (foi incluída na build).");
             }
             else
             {
-                Debug.Log("[PostLib] ℹ️ Nenhuma pasta Source/ para restaurar.");
+                // Debug.Log("[PostLib] ℹ️ Nenhuma pasta Source/ para restaurar.");
             }
 
             // Limpar variáveis
             _backupHtmlPath = null;
             _externalTempDir = null;
             
-            Debug.Log("[PostLib] 🏁 Postprocess concluído. Template e Source/ restaurados ao estado original.");
+            // Debug.Log("[PostLib] 🏁 Postprocess concluído. Template e Source/ restaurados ao estado original.");
         }
 
         /* =============================== Helpers =============================== */
@@ -245,7 +245,7 @@ namespace PostLib.Editor
 
             if (hasDevRegion)
             {
-                Debug.Log("[PostLib] DEV_TOOLS region já existe, garantindo que esteja ativa e descomentada...");
+                // Debug.Log("[PostLib] DEV_TOOLS region já existe, garantindo que esteja ativa e descomentada...");
                 
                 // Garantir que o bloco inteiro não esteja comentado e descomenta conteúdo interno
                 html = Regex.Replace(
@@ -277,11 +277,11 @@ namespace PostLib.Editor
                     RegexOptions.IgnoreCase
                 );
 
-                Debug.Log("[PostLib] DEV_TOOLS region processada e ativada.");
+                // Debug.Log("[PostLib] DEV_TOOLS region processada e ativada.");
             }
             else
             {
-                Debug.Log("[PostLib] DEV_TOOLS region não encontrada, injetando bloco padrão...");
+                // Debug.Log("[PostLib] DEV_TOOLS region não encontrada, injetando bloco padrão...");
                 
                 // Injeta bloco padrão de DEV_TOOLS
                 var injection = $@"
@@ -293,17 +293,17 @@ namespace PostLib.Editor
                 if (Regex.IsMatch(html, "</head>", RegexOptions.IgnoreCase))
                 {
                     html = Regex.Replace(html, "</head>", $"{injection}\n</head>", RegexOptions.IgnoreCase);
-                    Debug.Log("[PostLib] DEV_TOOLS injetado antes de </head>");
+                    // Debug.Log("[PostLib] DEV_TOOLS injetado antes de </head>");
                 }
                 else if (Regex.IsMatch(html, "</body>", RegexOptions.IgnoreCase))
                 {
                     html = Regex.Replace(html, "</body>", $"{injection}\n</body>", RegexOptions.IgnoreCase);
-                    Debug.Log("[PostLib] DEV_TOOLS injetado antes de </body>");
+                    // Debug.Log("[PostLib] DEV_TOOLS injetado antes de </body>");
                 }
                 else
                 {
                     html += injection;
-                    Debug.Log("[PostLib] DEV_TOOLS adicionado ao final do HTML");
+                    // Debug.Log("[PostLib] DEV_TOOLS adicionado ao final do HTML");
                 }
             }
 
@@ -319,7 +319,7 @@ namespace PostLib.Editor
             {
                 if (!File.Exists(StyleCssPath))
                 {
-                    Debug.LogWarning($"[PostLib] style.css não encontrado em {StyleCssPath}");
+                    // Debug.LogWarning($"[PostLib] style.css não encontrado em {StyleCssPath}");
                     return;
                 }
 
@@ -333,11 +333,11 @@ namespace PostLib.Editor
                 );
 
                 File.WriteAllText(StyleCssPath, css);
-                Debug.Log("[PostLib] Release: removidas 'position/top/left' do #unity-container em style.css.");
+                // Debug.Log("[PostLib] Release: removidas 'position/top/left' do #unity-container em style.css.");
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[PostLib] Falha na limpeza de style.css: {ex.Message}");
+                // Debug.LogWarning($"[PostLib] Falha na limpeza de style.css: {ex.Message}");
             }
         }
 
@@ -350,7 +350,7 @@ namespace PostLib.Editor
             {
                 if (!Directory.Exists(SourceDir)) 
                 {
-                    Debug.Log("[PostLib] Pasta Source/ não encontrada, nada para mover.");
+                    // Debug.Log("[PostLib] Pasta Source/ não encontrada, nada para mover.");
                     return;
                 }
 
@@ -363,11 +363,11 @@ namespace PostLib.Editor
                 Directory.CreateDirectory(Path.GetDirectoryName(_externalTempDir));
                 Directory.Move(SourceDir, _externalTempDir);
 
-                Debug.Log($"[PostLib] Pasta Source/ movida temporariamente para: {_externalTempDir}");
+                // Debug.Log($"[PostLib] Pasta Source/ movida temporariamente para: {_externalTempDir}");
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"[PostLib] Não foi possível mover Source/: {ex.Message}");
+                // Debug.LogWarning($"[PostLib] Não foi possível mover Source/: {ex.Message}");
             }
         }
 
@@ -382,7 +382,7 @@ namespace PostLib.Editor
                 {
                     File.Copy(_backupHtmlPath, TemplatePath, true);
                     File.Delete(_backupHtmlPath);
-                    Debug.Log("[PostLib] Template restaurado após erro no preprocess.");
+                    // Debug.Log("[PostLib] Template restaurado após erro no preprocess.");
                 }
 
                 if (!string.IsNullOrEmpty(_externalTempDir) && Directory.Exists(_externalTempDir))
@@ -392,12 +392,12 @@ namespace PostLib.Editor
 
                     Directory.CreateDirectory(Path.GetDirectoryName(SourceDir));
                     Directory.Move(_externalTempDir, SourceDir);
-                    Debug.Log("[PostLib] Pasta Source/ restaurada após erro no preprocess.");
+                    // Debug.Log("[PostLib] Pasta Source/ restaurada após erro no preprocess.");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[PostLib] Falha ao restaurar após erro: {ex.Message}");
+                // Debug.LogError($"[PostLib] Falha ao restaurar após erro: {ex.Message}");
             }
         }
     }

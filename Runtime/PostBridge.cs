@@ -12,33 +12,33 @@ namespace PostLib
         
         private void Awake()
         {
-            Debug.Log("[PostLib] Configurando bridge...");
+            // Debug.Log("[PostLib] Configurando bridge...");
             
 #if !UNITY_EDITOR && UNITY_WEBGL
             try
             {
                 JS_Receive();
-                Debug.Log("[PostLib] chamado com sucesso");
+                // Debug.Log("[PostLib] chamado com sucesso");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] Erro ao chamar JS_Receive: {ex.Message}");
+                // Debug.LogError($"[PostLib] Erro ao chamar JS_Receive: {ex.Message}");
             }
 #else
-            Debug.Log("[PostLib] Editor mode - JS_Receive() simulado");
+            // Debug.Log("[PostLib] Editor mode - JS_Receive() simulado");
 #endif
             
-            Debug.Log("[PostLib] Ativando window Listener JS.");
+            // Debug.Log("[PostLib] Ativando window Listener JS.");
             MessageRouter.SendInitialization();
         }
 
         public void OnReceive(string json)
         {
-            Debug.Log($"[PostLib] 📨 OnReceive chamado com: {json}");
+            // Debug.Log($"[PostLib] 📨 OnReceive chamado com: {json}");
             json = UnwrapIfQuoted(json);
             if (string.IsNullOrEmpty(json))
             {
-                Debug.LogWarning("[PostLib] JSON recebido está vazio!");
+                // Debug.LogWarning("[PostLib] JSON recebido está vazio!");
                 return;
             }
             
@@ -48,26 +48,26 @@ namespace PostLib
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] ❌ Erro em OnReceive: {ex.Message}\n{ex.StackTrace}");
+                // Debug.LogError($"[PostLib] ❌ Erro em OnReceive: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
         public static void Send(string json)
         {
-            Debug.Log($"[PostLib] 📤 Enviando: {json}");
+            // Debug.Log($"[PostLib] 📤 Enviando: {json}");
             
 #if !UNITY_EDITOR && UNITY_WEBGL
             try
             {
                 JS_Send(json);
-                Debug.Log("[PostLib] JS_Send() executado com sucesso");
+                // Debug.Log("[PostLib] JS_Send() executado com sucesso");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"[PostLib] Erro ao chamar JS_Send(): {ex.Message}");
+                // Debug.LogError($"[PostLib] Erro ao chamar JS_Send(): {ex.Message}");
             }
 #else
-            Debug.Log("[PostLib] Editor mode - JS_Send() simulado");
+            // Debug.Log("[PostLib] Editor mode - JS_Send() simulado");
 #endif
         }
         private static string UnwrapIfQuoted(string json)
