@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using UnityEditor;
-using UnityEngine;
 
 namespace PostLib.Editor
 {
@@ -10,6 +9,7 @@ namespace PostLib.Editor
     {
         private const string PluginPath = "Assets/Plugins/WebGL/PostLib.jslib";
         private const string PluginUserAgentPath = "Assets/Plugins/WebGL/UserAgent.jslib";
+        private const string PluginUrlOpenerPath = "Assets/Plugins/WebGL/UrlOpener.jslib";
         private const string PluginSource = @"
 mergeInto(LibraryManager.library, {
     JS_Receive: function () {
@@ -52,10 +52,44 @@ mergeInto(LibraryManager.library, {
   }
 });
         ";
+        private const string PluginUrlOpener = @"
+mergeInto(LibraryManager.library, {
+  JS_OpenUrlOverlay: function (ptr) {
+    var url = UTF8ToString(ptr);
+    var overlay = document.getElementById('postlib-url-overlay');
+    var iframe;
+
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'postlib-url-overlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:999999;display:flex;flex-direction:column;';
+
+      var closeBtn = document.createElement('button');
+      closeBtn.innerText = '✕';
+      closeBtn.style.cssText = 'align-self:flex-end;flex-shrink:0;margin:8px;width:36px;height:36px;font-size:18px;line-height:1;background:#fff;color:#000;border:none;border-radius:50%;cursor:pointer;';
+      closeBtn.onclick = function () { overlay.style.display = 'none'; };
+
+      iframe = document.createElement('iframe');
+      iframe.id = 'postlib-url-overlay-iframe';
+      iframe.style.cssText = 'flex:1;width:100%;border:none;background:#fff;';
+
+      overlay.appendChild(closeBtn);
+      overlay.appendChild(iframe);
+      document.body.appendChild(overlay);
+    } else {
+      iframe = document.getElementById('postlib-url-overlay-iframe');
+    }
+
+    iframe.src = url;
+    overlay.style.display = 'flex';
+  }
+});
+";
         static PostLibPluginCreator()
         {
             EnsurePluginFile();
             EnsurePluginUserAgentFile();
+            EnsurePluginUrlOpenerFile();
         }
 
         private static void EnsurePluginFile()
@@ -79,6 +113,18 @@ mergeInto(LibraryManager.library, {
                 Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
                 File.WriteAllText(fullPath, PluginUserAgent);
                 // Debug.Log("[PostLib] UserAgent.jslib atualizado em: " + PluginUserAgentPath);
+                AssetDatabase.Refresh();
+            }
+        }
+        private static void EnsurePluginUrlOpenerFile()
+        {
+            var fullPath = Path.GetFullPath(PluginUrlOpenerPath);
+
+            if (!File.Exists(fullPath) || File.ReadAllText(fullPath) != PluginUrlOpener)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+                File.WriteAllText(fullPath, PluginUrlOpener);
+                // Debug.Log("[PostLib] UrlOpener.jslib atualizado em: " + PluginUrlOpenerPath);
                 AssetDatabase.Refresh();
             }
         }

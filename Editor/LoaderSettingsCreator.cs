@@ -1,8 +1,5 @@
-﻿using TMPro;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
-using PostLib;
 
 namespace PostLib.Editor
 {
