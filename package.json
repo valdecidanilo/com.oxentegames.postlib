@@ -17,10 +17,7 @@
     "communication",
     "web",
     "unity",
-    "library",
-    "cypress",
-    "e2e",
-    "testing"
+    "library"
   ],
   "preview": false
 }
