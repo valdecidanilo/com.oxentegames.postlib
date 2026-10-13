@@ -90,6 +90,18 @@ public enum PostMappings
 
 ---
 
+## 📋 Copiar para a área de transferência
+
+O Safari (iOS) só copia dentro do evento de toque do navegador, e o Unity WebGL processa o toque no frame seguinte. Por isso a cópia precisa ser armada no `PointerDown` do botão:
+
+1. Adicione o componente `ClipboardArmOnPress` ao botão (ou chame `PostBridge.ClipboardArm()` no `PointerDown`).
+2. No `onClick`, chame `PostBridge.ClipboardCopy(texto)` — pode ser depois de uma requisição de rede.
+3. Se desistir de copiar (sem link, erro), chame `PostBridge.ClipboardCancel()`.
+
+Sem o passo 1 a cópia continua funcionando no Android e no desktop, mas não no iOS.
+
+---
+
 ## 🧪 Testes no Editor
 
 Durante o desenvolvimento, as mensagens enviadas por `PostBridge.Send(...)` são apenas logadas no Console para evitar erros em ambientes fora do WebGL.

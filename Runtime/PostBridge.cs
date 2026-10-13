@@ -16,6 +16,8 @@ namespace PostLib
         [DllImport("__Internal")] private static extern void WebGLLoading_Complete();
         [DllImport("__Internal")] private static extern void WebGLLoading_HideOverlayForUnityPopup();
         [DllImport("__Internal")] private static extern void WebGLClipboard_Copy(string text);
+        [DllImport("__Internal")] private static extern void WebGLClipboard_Arm();
+        [DllImport("__Internal")] private static extern void WebGLClipboard_Cancel();
         [DllImport("__Internal")] private static extern void Unity_CloseLoadingOverlayImmediately();
         private void Awake()
         {
@@ -153,6 +155,26 @@ namespace PostLib
             WebGLClipboard_Copy(text);
 #else
             GUIUtility.systemCopyBuffer = text;
+#endif
+        }
+
+        /// <summary>
+        /// Prepara a próxima <see cref="ClipboardCopy"/> para funcionar no iOS: chame no PointerDown
+        /// do botão (o <see cref="ClipboardArmOnPress"/> faz isso). A cópia começa no toque do
+        /// navegador e o texto pode chegar depois, inclusive após uma requisição de rede.
+        /// </summary>
+        public static void ClipboardArm()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLClipboard_Arm();
+#endif
+        }
+
+        /// <summary>Descarta uma cópia armada quando não houver texto para copiar.</summary>
+        public static void ClipboardCancel()
+        {
+#if UNITY_WEBGL && !UNITY_EDITOR
+            WebGLClipboard_Cancel();
 #endif
         }
         public static void CloseLoadingOverlayImmediately()

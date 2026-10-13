@@ -133,45 +133,142 @@ mergeInto(LibraryManager.library, {
        }
     },
     
-    WebGLClipboard_Copy: function (textPtr) {
-    var text = UTF8ToString(textPtr);
+    // O Safari (iOS) so copia dentro do evento de toque do navegador, e o Unity
+    // processa o toque no frame seguinte. Por isso a copia e armada no PointerDown
+    // (WebGLClipboard_Arm) e iniciada no proximo pointerup/touchend do DOM, com um
+    // ClipboardItem cujo texto e resolvido depois por WebGLClipboard_Copy.
+    PostLibClipboard_State: function () {
+      if (window.__postlibClipboard) return window.__postlibClipboard;
 
-    function fallbackCopy(value) {
+      var c = {
+        armed: false,
+        resolve: null,
+        reject: null,
+        timer: 0,
+        timeoutMs: 15000
+      };
+
+      c.reset = function (rejectReason) {
+        if (c.timer) { clearTimeout(c.timer); c.timer = 0; }
+        var reject = c.reject;
+        c.armed = false;
+        c.resolve = null;
+        c.reject = null;
+        if (rejectReason && reject) reject(new Error(rejectReason));
+      };
+
+      c.startTimeout = function () {
+        if (c.timer) clearTimeout(c.timer);
+        c.timer = setTimeout(function () { c.reset('timeout'); }, c.timeoutMs);
+      };
+
+      c.execCopy = function (value) {
         var textarea = document.createElement('textarea');
         textarea.value = value;
-
         textarea.setAttribute('readonly', '');
         textarea.style.position = 'fixed';
-        textarea.style.left = '-9999px';
-        textarea.style.top = '-9999px';
+        textarea.style.left = '0';
+        textarea.style.top = '0';
         textarea.style.opacity = '0';
-
+        textarea.style.fontSize = '16px';
         document.body.appendChild(textarea);
 
-        textarea.focus();
-        textarea.select();
-        textarea.setSelectionRange(0, textarea.value.length);
-
+        var ok = false;
         try {
-          document.execCommand('copy');
+          textarea.focus();
+          textarea.select();
+          textarea.setSelectionRange(0, value.length);
+          ok = document.execCommand('copy');
         } catch (e) {
           console.warn('[WebClipboard] fallback copy failed:', e);
         }
 
         document.body.removeChild(textarea);
+        if (!ok) console.warn('[WebClipboard] copy rejected (no user gesture?)');
+      };
+
+      c.legacyCopy = function (value) {
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext) {
+            navigator.clipboard.writeText(value).catch(function () { c.execCopy(value); });
+          } else {
+            c.execCopy(value);
+          }
+        } catch (e) {
+          c.execCopy(value);
+        }
+      };
+
+      c.onGesture = function () {
+        if (!c.armed) return;
+        c.armed = false;
+
+        // Sem ClipboardItem: o texto e copiado do jeito antigo quando chegar
+        // (funciona no Chrome por causa da ativacao transitoria).
+        if (!window.isSecureContext || !navigator.clipboard || !navigator.clipboard.write ||
+            typeof ClipboardItem === 'undefined') {
+          c.reset();
+          return;
+        }
+
+        var textPromise = new Promise(function (resolve, reject) {
+          c.resolve = resolve;
+          c.reject = reject;
+        });
+        textPromise.catch(function () {});
+        c.startTimeout();
+
+        try {
+          var item = new ClipboardItem({
+            'text/plain': textPromise.then(function (t) {
+              return new Blob([t], { type: 'text/plain' });
+            })
+          });
+          navigator.clipboard.write([item]).catch(function () {
+            // ClipboardItem com Promise nao suportado/bloqueado: tenta do jeito antigo.
+            textPromise.then(c.legacyCopy, function () {});
+          });
+        } catch (e) {
+          textPromise.then(c.legacyCopy, function () {});
+        }
+      };
+
+      window.addEventListener('pointerup', c.onGesture, true);
+      window.addEventListener('touchend', c.onGesture, true);
+
+      window.__postlibClipboard = c;
+      return c;
+    },
+
+    WebGLClipboard_Arm__deps: ['PostLibClipboard_State'],
+    WebGLClipboard_Arm: function () {
+      var c = _PostLibClipboard_State();
+      c.reset('superseded');
+      c.armed = true;
+      c.startTimeout();
+    },
+
+    WebGLClipboard_Cancel__deps: ['PostLibClipboard_State'],
+    WebGLClipboard_Cancel: function () {
+      _PostLibClipboard_State().reset('cancelled');
+    },
+
+    WebGLClipboard_Copy__deps: ['PostLibClipboard_State'],
+    WebGLClipboard_Copy: function (textPtr) {
+      var text = UTF8ToString(textPtr);
+      var c = _PostLibClipboard_State();
+
+      // Copia ja iniciada dentro do gesto: so entrega o texto.
+      if (c.resolve) {
+        var resolve = c.resolve;
+        c.reset();
+        resolve(text);
+        return;
       }
 
-      try {
-        if (navigator.clipboard && window.isSecureContext) {
-          navigator.clipboard.writeText(text).catch(function () {
-            fallbackCopy(text);
-          });
-        } else {
-          fallbackCopy(text);
-        }
-      } catch (e) {
-        fallbackCopy(text);
-      }
+      // Armada mas o gesto nao chegou (ou nao armada): copia direto.
+      c.reset();
+      c.legacyCopy(text);
     }
 });
         ";

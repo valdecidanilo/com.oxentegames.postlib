@@ -4,7 +4,8 @@
     "references": [
         "PostLib.Models",
         "PostLib.Utils",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [
         "Editor",
