@@ -26,14 +26,13 @@ namespace PostLib
 
         private void ReceivedRegulation(string regulation)
         {
-            if (Enum.TryParse(regulation, out RegulationType parsed))
-                Setup(parsed);
-            else
-            {
-                // Debug.LogWarning("Regulation inválido: " + regulation);
-                Setup(RegulationType.asian);
-            }
+            // TryParse leaves parsed as default (brazilian) when it fails, so fall back explicitly
+            if (!Enum.TryParse(regulation, true, out RegulationType parsed) ||
+                !Enum.IsDefined(typeof(RegulationType), parsed))
+                parsed = RegulationType.asian;
+
             CurrentRegulation = parsed;
+            Setup(parsed);
         }
         private void Setup(RegulationType regulation)
         {
@@ -52,5 +51,6 @@ namespace PostLib
     {
         brazilian,
         asian,
+        mexico,
     }
 }
